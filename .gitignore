@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Secrets
+.env.local
+.env
+
+# Node
+node_modules/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
