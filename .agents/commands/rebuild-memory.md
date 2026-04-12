@@ -40,7 +40,7 @@ For each top-level directory in `src/`, count files and list immediate children:
 
 Verify these match reality — discover any new directories that appeared since last run.
 
-### 1b. L3 inventory
+### 1b. Service docs inventory
 
 Count `.AGENT.MD` files in `outputs/services/` and list `outputs/services/cross/` entries:
 
@@ -61,7 +61,7 @@ Each L2 file draws from specific inputs. Read those inputs, synthesize, write th
 
 For each team, produce `memory/L2/team-<name>.md`:
 - **Members** — from `staff-roster.tsv` + any org config in github repos
-- **Services owned** — from L3 files tagged to this team (scan AGENT.MD frontmatter/headers)
+- **Services owned** — from service docs tagged to this team (scan AGENT.MD frontmatter/headers)
 - **Active projects** — from `src/linear/weroad/all/` (match team labels)
 - **Docs pointers** — paths to their ClickUp docs folder, Confluence pages
 - **Recent releases** — from `src/clickup/📣 Releases Notes - 2026/` (match team name)
@@ -80,7 +80,7 @@ Known teams: Buktu, Tium, SAIan, Saitama, Voyager, DevOps, CyclOps, Stomp, Rocke
 
 **Inputs:** `outputs/services/*.AGENT.MD` (stack sections) + `src/github/weroad/` (repo languages/frameworks)
 
-- Aggregate tech stacks from all L3 service docs (language, framework, DB, messaging)
+- Aggregate tech stacks from all service docs (language, framework, DB, messaging)
 - Group by layer: frontend, backend, data, infra
 - Note the most common patterns
 
@@ -183,7 +183,7 @@ Known teams: Buktu, Tium, SAIan, Saitama, Voyager, DevOps, CyclOps, Stomp, Rocke
 
 ## Phase 3 — L1 Rebuild (Navigation MOCs)
 
-L1 files are navigation maps. Each derives from L2 + L3 + src structure.
+L1 files are navigation maps. Each derives from L2 + outputs/services + src structure.
 
 ### Source MOCs
 
@@ -230,7 +230,7 @@ Each source MOC contains:
 
 Write `outputs/agents/brain-sync/YYYY-MM-DD-rebuild.md` with:
 - Source inventory table (src/ directories + file counts)
-- L3 inventory (service docs count, cross-cutting count)
+- Service docs inventory (service docs count, cross-cutting count)
 - Memory stats (files before/after per layer, created/updated/flagged)
 - Changes summary (what was added, updated, removed)
 - Broken links found
@@ -241,9 +241,9 @@ Write `outputs/agents/brain-sync/YYYY-MM-DD-rebuild.md` with:
 ## Execution Order
 
 ```
-Phase 1 (inventory src + L3)
-  → Phase 2 (rebuild L2 from src + L3)
-    → Phase 3 (rebuild L1 from L2 + L3 + src structure)
+Phase 1 (inventory src + outputs/services)
+  → Phase 2 (rebuild L2 from src + outputs/services)
+    → Phase 3 (rebuild L1 from L2 + outputs/services + src structure)
       → Phase 4 (verify)
         → Phase 5 (digest)
 ```
@@ -252,10 +252,10 @@ Phase 1 (inventory src + L3)
 
 - **Discover, don't assume**: Scan directories to find what exists. The table above is a guide — new sources or files may have appeared.
 - **Source wins**: If a source contradicts existing memory, update memory.
-- **Outputs are read-only**: Never modify L3 files — they are inputs, not outputs.
+- **Outputs are read-only**: Never modify service doc files — they are inputs, not outputs.
 - **Skip, don't fabricate**: If a source doesn't provide data for a section, use `<!-- TODO: source not available -->`.
 - **Timestamp everything**: `<!-- verified: YYYY-MM-DD | source: ... -->` on every fact block.
 - **Preserve `<!-- superseded: -->` markers**: Keep them even in a rebuild.
 - **Conservative on entities**: 2+ source appearances required for `entities.md`.
 - **Use `qmd query`** for semantic searches across the brain. Use Grep only for exact string/regex matches.
-- **L4 is read-only for L2**: L4 agent outputs feed into L2 summaries but are never modified by this command.
+- **Agent outputs are read-only for L2**: `outputs/agents` reports feed into L2 summaries but are never modified by this command.

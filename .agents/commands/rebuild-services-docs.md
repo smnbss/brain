@@ -69,7 +69,7 @@ Read these files in this order (skip any that don't exist):
 - For NestJS: read `app.module.ts` to understand module wiring
 - For monorepos: map each workspace and its role
 
-### 2. Check existing L3 file
+### 2. Check existing service doc
 
 Read `outputs/services/{owner}-{repo}.AGENT.MD` if it exists. Compare against what you found.
 Preserve any manually-added context (marked with comments or clearly editorial) unless
@@ -159,7 +159,7 @@ concept (e.g., no DB for a stateless service).
 {Team name}
 ```
 
-## 4. Update L3/cross RabbitMQ Topology Files (if service has messaging)
+## 4. Update cross-cutting RabbitMQ Topology Files (if service has messaging)
 
 If the service produces or consumes RabbitMQ events, you MUST also update the central
 RabbitMQ documentation files in `outputs/services/cross/`:
@@ -171,7 +171,7 @@ RabbitMQ documentation files in `outputs/services/cross/`:
 
 ### Process:
 
-1. **Read all three L3/cross files** to understand the current structure and formatting
+1. **Read all three cross-cutting files** to understand the current structure and formatting
 2. **For producers-consumers.md**: 
    - Add new events to the Event Reference Table with proper routing keys, producers, consumers, and descriptions
    - Update the Exchange Summary table with accurate producer/consumer counts
@@ -183,7 +183,7 @@ RabbitMQ documentation files in `outputs/services/cross/`:
    - Update the Producer and Consumer matrices
    - Update the Exchange Summary counts
 
-### Rules for L3/cross updates:
+### Rules for cross-cutting updates:
 - Preserve existing formatting and conventions
 - Group events by exchange in the same order as existing sections
 - Use `{cc}` placeholder for country code in routing keys (e.g., `{cc}.booking.created`)
@@ -199,7 +199,7 @@ RabbitMQ documentation files in `outputs/services/cross/`:
   important tables.
 - For messaging: capture the exact routing key patterns and payload interfaces.
   Messaging bugs are the hardest to debug — complete docs here save hours.
-- **Always update L3/cross RabbitMQ files when the service has messaging** — keep the topology
+- **Always update cross-cutting RabbitMQ files when the service has messaging** — keep the topology
   documentation in sync with the service-level documentation.
 - For dependencies: be specific. Not "calls catalog API" but "calls api-catalog via
   GraphQL at `API_CATALOG_INTERNAL_URL` for travel data".

@@ -9,8 +9,8 @@ AI agent commands and skills for building and syncing the WeRoad knowledge brain
 | Command | Purpose |
 |---------|---------|
 | `brain-sync.md` | Orchestrate a full brain sync — pull external sources, update memory layers, write digest |
-| `rebuild-memory.md` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `memory/L3/` |
-| `rebuild-services-docs.md` | Generate deep L3 `.AGENT.MD` service docs from cloned GitHub repos |
+| `rebuild-memory.md` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
+| `rebuild-services-docs.md` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
 | `git-sync.md` | Commit and push all brain changes |
 | `morning-start.md` | Daily routine — tool updates, brain sync, meeting harvest, day prep |
 | `dbt-build.md` | Run dbt builds (optional) |
@@ -75,6 +75,6 @@ GCP_PROJECT_ID=...
 ## Quick start
 
 1. **Populate sources** — run `/brain-sync` to export all external data into `src/`
-2. **Build L3 docs** — run `/rebuild-services-docs` to generate per-repo architecture docs
+2. **Build service docs** — run `/rebuild-services-docs` to generate per-repo architecture docs
 3. **Build memory** — run `/rebuild-memory` to synthesize L2 and L1 navigation maps
 4. **Save** — run `/git-sync` to commit and push
