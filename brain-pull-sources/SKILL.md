@@ -19,6 +19,7 @@ All paths below are relative to the repo root (`git rev-parse --show-toplevel`).
 |------|------|
 | Agent scripts | `.claude/skills/brain-pull-sources/bin/` |
 | Python utilities | `.claude/skills/brain-pull-sources/utils/` |
+| Reference templates | `.claude/skills/brain-pull-sources/references/` |
 | Source manifest | `sources.md` (repo root) |
 | Secrets | `.env.local` (repo root, gitignored) |
 | Export output | `src/clickup/`, `src/confluence/`, `src/gdrive/`, `src/github/`, `src/linear/`, `src/medium/` |
@@ -26,7 +27,7 @@ All paths below are relative to the repo root (`git rev-parse --show-toplevel`).
 
 ### Environment check (run first)
 
-If sources.md does not exist, create one making a copy of references/sources.md
+If `sources.md` does not exist at the repo root, create one by copying `.claude/skills/brain-pull-sources/references/sources.md`
 
 Before doing anything else, verify `.env.local` exists and has all required keys
 Only proceed to the pipeline once all keys are present and non-empty.

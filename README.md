@@ -1,50 +1,23 @@
 # brain
 
+[![skills.sh](https://img.shields.io/badge/skills.sh-compatible-blue)](https://skills.sh)
+
 AI agent skills for building and syncing the WeRoad knowledge brain.
-
-## What's inside
-
-### Skills (`.agents/skills/`)
-
-| Skill | Purpose |
-|-------|---------|
-| `brain-pull-sources/` | Export all external sources — ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
-| `brain-rebuild-services/` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
-| `brain-rebuild-memory/` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
-| `brain-git-sync/` | Commit and push all brain changes |
 
 ## Install
 
-### Option A: `super install`
-
-Add to your `super.config.yaml`:
-
-```yaml
-skills:
-  weroad-brain:
-    source: smnbss/brain
-    description: WeRoad brain sync skills
-    enabled: true
-```
-
-Then run:
-
 ```bash
-super install
+npx skills add smnbss/brain
 ```
 
-After install, copy the skills into your brain project:
+## Skills
 
-```bash
-cp -r .agents/skills/weroad-brain/.agents/skills/* /path/to/your/brain/.agents/skills/
-```
-
-### Option B: Direct clone
-
-```bash
-git clone https://github.com/smnbss/brain.git /tmp/brain
-cp -r /tmp/brain/.agents/skills/* /path/to/your/brain/.agents/skills/
-```
+| Skill | Description |
+|-------|-------------|
+| `brain-pull-sources` | Export all external sources — ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
+| `brain-rebuild-services` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
+| `brain-rebuild-memory` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
+| `brain-git-sync` | Commit and push all brain changes |
 
 ## Required environment
 

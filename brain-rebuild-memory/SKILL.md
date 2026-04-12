@@ -1,3 +1,8 @@
+---
+name: brain-rebuild-memory
+description: Rebuild the memory layers L2 (domain knowledge) and L1 (navigation MOCs) from source exports and service docs. Use when memory needs to be refreshed from the latest inputs.
+---
+
 # /update-memory
 
 Rebuild the memory layers L2 and L1 from `outputs/` and `src/`.
