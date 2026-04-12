@@ -1,25 +1,18 @@
 # brain
 
-AI agent commands and skills for building and syncing the WeRoad knowledge brain.
+AI agent skills for building and syncing the WeRoad knowledge brain.
 
 ## What's inside
-
-### Commands (`.agents/commands/`)
-
-| Command | Purpose |
-|---------|---------|
-| `brain-sync.md` | Orchestrate a full brain sync — pull external sources, update memory layers, write digest |
-| `rebuild-memory.md` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
-| `rebuild-services-docs.md` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
-| `git-sync.md` | Commit and push all brain changes |
-| `morning-start.md` | Daily routine — tool updates, brain sync, meeting harvest, day prep |
-| `dbt-build.md` | Run dbt builds (optional) |
 
 ### Skills (`.agents/skills/`)
 
 | Skill | Purpose |
 |-------|---------|
-| `weroad-brain-sync/` | The core sync engine — exports ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
+| `brain-brain-sync/` | Orchestrate a full brain sync — pull external sources, update memory layers, write digest |
+| `brain-git-sync/` | Commit and push all brain changes |
+| `brain-rebuild-memory/` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
+| `brain-rebuild-git/` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
+| `brain-pull-sources/` | The core sync engine — exports ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
 
 ## Install
 
@@ -31,7 +24,7 @@ Add to your `super.config.yaml`:
 skills:
   weroad-brain:
     source: smnbss/brain
-    description: WeRoad brain sync commands and skills
+    description: WeRoad brain sync skills
     enabled: true
 ```
 
@@ -41,10 +34,9 @@ Then run:
 super install
 ```
 
-After install, copy the commands into your brain project:
+After install, copy the skills into your brain project:
 
 ```bash
-cp -r .agents/skills/weroad-brain/.agents/commands/* /path/to/your/brain/.agents/commands/
 cp -r .agents/skills/weroad-brain/.agents/skills/* /path/to/your/brain/.agents/skills/
 ```
 
@@ -52,7 +44,6 @@ cp -r .agents/skills/weroad-brain/.agents/skills/* /path/to/your/brain/.agents/s
 
 ```bash
 git clone https://github.com/smnbss/brain.git /tmp/brain
-cp -r /tmp/brain/.agents/commands/* /path/to/your/brain/.agents/commands/
 cp -r /tmp/brain/.agents/skills/* /path/to/your/brain/.agents/skills/
 ```
 
@@ -74,7 +65,7 @@ GCP_PROJECT_ID=...
 
 ## Quick start
 
-1. **Populate sources** — run `/brain-sync` to export all external data into `src/`
-2. **Build service docs** — run `/rebuild-services-docs` to generate per-repo architecture docs
-3. **Build memory** — run `/rebuild-memory` to synthesize L2 and L1 navigation maps
-4. **Save** — run `/git-sync` to commit and push
+1. **Populate sources** — invoke the `brain-brain-sync` skill to export all external data into `src/`
+2. **Build service docs** — invoke the `brain-rebuild-git` skill to generate per-repo architecture docs
+3. **Build memory** — invoke the `brain-rebuild-memory` skill to synthesize L2 and L1 navigation maps
+4. **Save** — invoke the `brain-git-sync` skill to commit and push
