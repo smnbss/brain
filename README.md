@@ -8,11 +8,10 @@ AI agent skills for building and syncing the WeRoad knowledge brain.
 
 | Skill | Purpose |
 |-------|---------|
-| `brain-brain-sync/` | Orchestrate a full brain sync — pull external sources, update memory layers, write digest |
-| `brain-git-sync/` | Commit and push all brain changes |
+| `brain-pull-sources/` | Export all external sources — ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
+| `brain-rebuild-services/` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
 | `brain-rebuild-memory/` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
-| `brain-rebuild-git/` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
-| `brain-pull-sources/` | The core sync engine — exports ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
+| `brain-git-sync/` | Commit and push all brain changes |
 
 ## Install
 
@@ -65,7 +64,7 @@ GCP_PROJECT_ID=...
 
 ## Quick start
 
-1. **Populate sources** — invoke the `brain-brain-sync` skill to export all external data into `src/`
-2. **Build service docs** — invoke the `brain-rebuild-git` skill to generate per-repo architecture docs
+1. **Populate sources** — invoke the `brain-pull-sources` skill to export all external data into `src/`
+2. **Build service docs** — invoke the `brain-rebuild-services` skill to generate per-repo architecture docs
 3. **Build memory** — invoke the `brain-rebuild-memory` skill to synthesize L2 and L1 navigation maps
 4. **Save** — invoke the `brain-git-sync` skill to commit and push

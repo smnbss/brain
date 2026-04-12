@@ -13,8 +13,8 @@ Outputs are read-only inputs — this command never modifies them.
 
 ## Prerequisites
 
-1. `src/` must be populated — run `/brain-sync` first if empty.
-2. `outputs/services/` must be populated — run `/rebuild-services-docs` first if empty.
+1. `src/` must be populated — invoke `brain-pull-sources` first if empty.
+2. `outputs/services/` must be populated — invoke `brain-rebuild-services` first if empty.
 
 ---
 

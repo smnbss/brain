@@ -1,9 +1,9 @@
 ---
-name: weroad-brain-sync
+name: brain-pull-sources
 description: >
   Sync the WeRoad Brain — re-export all external sources (ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase),
   backfill missing meeting digests, and refresh L1–L2 memory files and service docs from the latest data. Use this skill whenever the user
-  says "brain sync", "sync the brain", "refresh memory", "update sources", "pull sources", "run brain-sync", "backfill meetings",
+  says "pull sources", "update sources", "refresh sources", "export sources",
   or asks to bring the knowledge graph up to date. Also trigger when the user asks about stale data or missing meeting digests.
 ---
 
@@ -17,8 +17,8 @@ All paths below are relative to the repo root (`git rev-parse --show-toplevel`).
 
 | What | Path |
 |------|------|
-| Agent scripts | `.claude/skills/weroad-brain-sync/bin/` |
-| Python utilities | `.claude/skills/weroad-brain-sync/utils/` |
+| Agent scripts | `.claude/skills/brain-pull-sources/bin/` |
+| Python utilities | `.claude/skills/brain-pull-sources/utils/` |
 | Source manifest | `sources.md` (repo root) |
 | Secrets | `.env.local` (repo root, gitignored) |
 | Export output | `src/clickup/`, `src/confluence/`, `src/gdrive/`, `src/github/`, `src/linear/`, `src/medium/` |
@@ -71,7 +71,7 @@ The sync runs in three phases.
 Run the export pipeline from the repo root:
 
 ```bash
-.claude/skills/weroad-brain-sync/bin/pull_sources sources.md
+.claude/skills/brain-pull-sources/bin/pull_sources sources.md
 ```
 
 This reads `sources.md` line by line, strips `#` comments, and runs each command via `bin/<tool>`. It writes `src/.last_export.json` with a timestamp and success/failure counts.
