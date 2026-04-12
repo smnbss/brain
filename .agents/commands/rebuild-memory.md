@@ -1,118 +1,226 @@
 # /update-memory
 
-Rebuild the memory layers L2 and L1 from `src/` exports and `memory/L3/` service docs.
+Rebuild the memory layers L2 and L1 from `outputs/` and `src/`.
 
-L3 is pre-built (per-repo/service docs) — this command does NOT touch it.
-Inputs: `src/` (raw exports) + `memory/L3/` (service docs).
-Outputs: `memory/L2/` (domain knowledge) + `memory/L1/` (navigation MOCs).
+**Inputs (read-only):**
+- `src/` — raw exports (ClickUp, Confluence, GDrive, GitHub, GWS, Linear, Medium, Metabase, Personio)
+- `outputs/services/` — per-service technical docs + cross-cutting concerns
+- `outputs/agents/` — agent time-series reports (SEO, bugs, meetings, press, etc.)
+
+**Outputs:** `memory/L2/` (domain knowledge) + `memory/L1/` (navigation MOCs)
+
+Outputs are read-only inputs — this command never modifies them.
 
 ## Prerequisites
 
 1. `src/` must be populated — run `/brain-sync` first if empty.
-2. `memory/L3/` must be populated — run `/rebuild-services-docs` first if empty.
+2. `outputs/services/` must be populated — run `/rebuild-services-docs` first if empty.
 
 ---
 
-## Phase 1 — Discover Sources
+## Phase 1 — Inventory
 
-Scan `src/` and `memory/L3/` to build a manifest of what's available.
+Scan inputs and record what's available. This drives everything else.
 
-```bash
-# List all top-level source directories
-ls src/
+### 1a. src/ inventory
 
-# For each, count files and note structure
-for dir in src/*/; do
-  echo "=== $dir ==="
-  find "$dir" -type f | wc -l
-  ls "$dir" | head -20
-done
+For each top-level directory in `src/`, count files and list immediate children:
 
-# Inventory L3 service docs
-ls memory/L3/
-```
+| Source | Structure |
+|--------|-----------|
+| `src/clickup/` | `Docs BUKTU/`, `Docs Tium/`, `🐵 Monkeys Wiki/`, `📣 Releases Notes - 2024/2025/2026/` |
+| `src/confluence/` | `Intranet/`, `Monkeys Wiki/` |
+| `src/gdrive/` | `Monkeys/`, `Monkeys Heads/`, `Monkeys_Projects/`, `WeRoad ExCo/`, `WeRoad/` |
+| `src/github/` | `weroad/` (60 repos), `smnbss/` (personal) |
+| `src/gws/` | `gmeet/` (2025/, 2026/) — meeting transcripts by year |
+| `src/linear/` | `weroad/` (`MOL-issues/`, `all/`) |
+| `src/medium/` | `smnbss/` — Simone's blog posts |
+| `src/metabase/` | `weroad/` — collection/dashboard/card index |
+| `src/personio/` | `staff-roster.tsv` — HR roster |
 
-Record all counts for the final digest.
+Verify these match reality — discover any new directories that appeared since last run.
+
+### 1b. L3 inventory
+
+Count `.AGENT.MD` files in `outputs/services/` and list `outputs/services/cross/` entries:
+
+- ~77 service docs: `weroad-<service>.AGENT.MD` (code/stack) + `weroad-<service>.DB.AGENT.MD` (database schema)
+- 3 cross-cutting: `weroad-rabbitmq-topology.md`, `weroad-rabbitmq-schema.md`, `weroad-rabbitmq-producers-consumers.md`
+
+Record all counts — they go in the Phase 5 digest.
 
 ---
 
 ## Phase 2 — L2 Rebuild (Domain Knowledge)
 
-L2 files are topic summaries derived from `src/` and `memory/L3/`.
-Don't maintain a fixed list — discover topics from what's available.
+Each L2 file draws from specific inputs. Read those inputs, synthesize, write the L2 file.
 
-### 2a. Team files
+### 2a. Team files (`team-*.md`)
 
-Discover teams from whichever of these exist:
-- Org config files in GitHub repos (terraform org yamls, IDP catalogs)
-- `sources.md` comments (e.g. `# tium`, `# buktu` after repo URLs)
-- Team-named folders in `src/clickup/` (e.g. `Docs <TeamName>/`)
-- Linear project exports in `src/linear/`
-- Service ownership in `memory/L3/` files
+**Inputs:** `src/personio/staff-roster.tsv` + `src/clickup/Docs {TeamName}/` + `src/linear/weroad/` + `outputs/services/*.AGENT.MD` (ownership)
 
-For each team discovered, write `memory/L2/team-<name>.md` containing:
-- Members (from org config if available)
-- Services (from L3 files whose repo is tagged to this team)
-- Active projects (from `src/linear/` if available)
-- Docs pointers (paths to team folders in clickup/confluence)
+For each team, produce `memory/L2/team-<name>.md`:
+- **Members** — from `staff-roster.tsv` + any org config in github repos
+- **Services owned** — from L3 files tagged to this team (scan AGENT.MD frontmatter/headers)
+- **Active projects** — from `src/linear/weroad/all/` (match team labels)
+- **Docs pointers** — paths to their ClickUp docs folder, Confluence pages
+- **Recent releases** — from `src/clickup/📣 Releases Notes - 2026/` (match team name)
 
-### 2b. Source-derived topics
+Known teams: Buktu, Tium, SAIan, Saitama, Voyager, DevOps, CyclOps, Stomp, Rocket, YoData, IT, Staff (non-eng).
 
-For each top-level directory in `src/`, scan its structure and create/update L2 files:
+### 2b. releases.md
 
-| Source pattern | L2 file(s) to produce |
-|----------------|----------------------|
-| `src/<tool>/` with release notes folders | `releases.md` — count per period, highlight summaries |
-| `src/<tool>/` with wiki/docs folders | One L2 per distinct wiki or doc collection — file counts, section inventory |
-| `src/gdrive/` subfolders | One L2 per major folder (executive docs, proposals, updates, HR, etc.) |
-| `src/confluence/` spaces | One L2 per space — page counts, section inventory |
-| `src/metabase/` | `metabase.md`-style summary from index files |
-| `src/medium/` or blog exports | `tone-of-voice.md` — analyze writing patterns |
-| `src/github/` repos | `technologies.md` — aggregate stack info from L3 files |
-| `src/personio/` or HR exports | Feed into ExCo/team files |
+**Inputs:** `src/clickup/📣 Releases Notes - 2024/`, `src/clickup/📣 Releases Notes - 2025/`, `src/clickup/📣 Releases Notes - 2026/`
 
-### 2c. L3-derived topics
+- Count releases per quarter per year
+- List the 10 most recent releases with title, date, team
+- Note any major milestones or breaking changes
 
-Read `memory/L3/` service docs and extract cross-cutting summaries:
-- `technologies.md` — aggregate tech stacks, languages, frameworks from all L3 files
-- Feed service ownership and dependency info into team files
-- Extract shared patterns (auth, infra, data) into domain-specific L2 files
+### 2c. technologies.md
 
-### 2d. Cross-references
+**Inputs:** `outputs/services/*.AGENT.MD` (stack sections) + `src/github/weroad/` (repo languages/frameworks)
 
-After all other L2 files are written, read them and extract any tables or timelines that span multiple domains into `cross-references.md`.
+- Aggregate tech stacks from all L3 service docs (language, framework, DB, messaging)
+- Group by layer: frontend, backend, data, infra
+- Note the most common patterns
+
+### 2d. monkeys-wiki.md
+
+**Inputs:** `src/clickup/🐵 Monkeys Wiki/` + `src/confluence/Monkeys Wiki/`
+
+- Section inventory from both sources
+- Merge overlapping content, note which source is authoritative for what
+- File counts and structure
+
+### 2e. confluence-monkeys-wiki.md
+
+**Inputs:** `src/confluence/Monkeys Wiki/`
+
+- Section inventory (platforms, insights, product, etc.)
+- File counts per section
+
+### 2f. intranet.md
+
+**Inputs:** `src/confluence/Intranet/`
+
+- Section inventory (HR, brand, hiring, perks, policies)
+- File counts per section
+
+### 2g. one-pagers.md
+
+**Inputs:** `src/gdrive/Monkeys_Projects/` + `src/gdrive/Monkeys/`
+
+- List product proposals / one-pagers
+- Group by product area or team if possible
+- Count and date range
+
+### 2h. exco.md
+
+**Inputs:** `src/gdrive/WeRoad ExCo/`
+
+- List executive/board documents
+- Group by type (board decks, financial reports, investor updates)
+- Date range and count
+
+### 2i. meetings.md
+
+**Inputs:** `src/gws/gmeet/` (year/month/day structure)
+
+- Count meetings per month
+- Date range covered
+- Note the structure (transcript files, attendees)
+
+### 2j. workflowy.md
+
+**Inputs:** `outputs/agents/my-workflowy/` (daily exports)
+
+- Summarize latest export structure
+- Date range covered
+
+### 2k. x-content.md
+
+**Inputs:** `outputs/agents/my-x.com/` (daily digests)
+
+- Summarize latest digest topics
+- Date range covered
+
+### 2l. seo-reports.md
+
+**Inputs:** `outputs/agents/seo/`, `outputs/agents/seo-geo/`, `outputs/agents/seo-site-architecture/`
+
+- Summarize latest audit findings
+- Date range covered
+
+### 2m. tech-reports.md
+
+**Inputs:** `outputs/agents/tech-bugs/`, `outputs/agents/tech-linear-project-updates/`, `outputs/agents/tech-post-mortem-summary/`
+
+- Summarize latest reports
+- Date range covered
+
+### 2n. press-and-market.md
+
+**Inputs:** `outputs/agents/biz-global-press-review/`, `outputs/agents/biz-middle-east-impact/`, `outputs/agents/biz-war-hp-optimization/`
+
+- Summarize latest press/market reports
+- Date range covered
+
+### 2o. monthly-updates.md
+
+**Inputs:** `outputs/agents/tech-monkeys-monthly-updates/`
+
+- List generated decks with dates
+- Note latest month covered
+
+### 2p. cross-references.md
+
+**Inputs:** All other L2 files (read after they're written)
+
+- Extract tables, timelines, or facts that span multiple L2 domains
+- Travel pages timeline, A/B tests, payments by market, investor reports
 
 ---
 
 ## Phase 3 — L1 Rebuild (Navigation MOCs)
 
-L1 files are navigation maps derived from L2 and L3 inventory. Two categories:
+L1 files are navigation maps. Each derives from L2 + L3 + src structure.
 
 ### Source MOCs
-For each source in `src/`, create/update a corresponding `memory/L1/<source>.md`:
+
+For each source in `src/`, create/update `memory/L1/<source>.md`:
+
+| L1 File | Reads from |
+|---------|-----------|
+| `clickup.md` | `src/clickup/` structure + L2 files that cite clickup |
+| `confluence.md` | `src/confluence/` structure + L2 files that cite confluence |
+| `gdrive.md` | `src/gdrive/` structure + L2 files that cite gdrive |
+| `github.md` | `src/github/` structure + L2 files that cite github |
+| `metabase.md` | `src/metabase/` structure + L2 files that cite metabase |
+
+Each source MOC contains:
 - File counts by subfolder
 - Links to every L2 file that draws from this source
 
 ### Cross-cutting MOCs
-These synthesize across sources. Rebuild each by reading the L2 files it links to:
 
 | L1 File | Derives from |
 |---------|-------------|
-| `teams.md` | All `team-*.md` L2 files + org config |
-| `product-areas.md` | `releases.md` + team L2 files (group features by product area) |
-| `business-domains.md` | ExCo + intranet + proposals L2 files (group by business function) |
-| `data-model.md` | dbt/data repos in L3 + BigQuery metadata if available |
-| `entities.md` | Full cross-source scan — anything appearing in 2+ sources gets an entry |
-| `system-map.md` | Enumerate `.claude/agents/` and `.claude/skills/` |
-| `skills.md` | Enumerate `.claude/skills/*/SKILL.md` |
+| `teams.md` | All `memory/L2/team-*.md` files + `src/personio/staff-roster.tsv` |
+| `product-areas.md` | `memory/L2/releases.md` + team L2 files (group features by product area) |
+| `business-domains.md` | `memory/L2/exco.md` + `memory/L2/intranet.md` + `memory/L2/one-pagers.md` |
+| `data-model.md` | `outputs/services/weroad-dbt.AGENT.MD` + `outputs/services/weroad-dashboards.AGENT.MD` + BigQuery metadata |
+| `entities.md` | Full scan of all L2 files — anything appearing in 2+ sources gets an entry |
+| `tone-of-voice.md` | `src/medium/smnbss/` — Simone's writing voice analysis |
+| `skills.md` | `.claude/skills/*/SKILL.md` — enumerate all skills |
+| `system-map.md` | `.claude/agents/`, `.claude/skills/`, `.claude/commands/` — full system index |
 | `hub.md` | **Last** — reads all other L1 files, builds the top-level nav with counts |
 
 ---
 
 ## Phase 4 — Verify
 
-1. **Broken links**: grep all `[[wikilinks]]` in memory files, check each target exists
-2. **Timestamps**: every `<!-- verified: -->` must have today's date
+1. **Broken links**: grep all `[[wikilinks]]` in `memory/`, check each target exists
+2. **Timestamps**: every `<!-- verified: -->` block must have today's date
 3. **Frontmatter**: every file's `updated:` = today
 4. **Orphans**: memory files with no corresponding source → flag (don't delete)
 
@@ -120,33 +228,34 @@ These synthesize across sources. Rebuild each by reading the L2 files it links t
 
 ## Phase 5 — Digest
 
-Write `memory/L4/brain-sync/YYYY-MM-DD-rebuild.md` with:
-- Source inventory table (discovered sources + file counts)
-- L3 inventory (service docs count)
+Write `outputs/agents/brain-sync/YYYY-MM-DD-rebuild.md` with:
+- Source inventory table (src/ directories + file counts)
+- L3 inventory (service docs count, cross-cutting count)
 - Memory stats (files before/after per layer, created/updated/flagged)
-- Changes summary
-- Broken links
-- Flagged for review
+- Changes summary (what was added, updated, removed)
+- Broken links found
+- Items flagged for review
 
 ---
 
 ## Execution Order
 
 ```
-Phase 1 (discover src + L3)
-  → Phase 2 (L2 — domain knowledge from src + L3)
-    → Phase 3 (L1 — navigation from L2 + L3)
+Phase 1 (inventory src + L3)
+  → Phase 2 (rebuild L2 from src + L3)
+    → Phase 3 (rebuild L1 from L2 + L3 + src structure)
       → Phase 4 (verify)
         → Phase 5 (digest)
 ```
 
 ## Rules
 
-- **Discover, don't assume**: Scan directories to find what exists. Never hardcode team names, repo names, folder names, or file lists.
+- **Discover, don't assume**: Scan directories to find what exists. The table above is a guide — new sources or files may have appeared.
 - **Source wins**: If a source contradicts existing memory, update memory.
-- **L3 is read-only**: Never modify L3 files — they are inputs, not outputs.
+- **Outputs are read-only**: Never modify L3 files — they are inputs, not outputs.
 - **Skip, don't fabricate**: If a source doesn't provide data for a section, use `<!-- TODO: source not available -->`.
 - **Timestamp everything**: `<!-- verified: YYYY-MM-DD | source: ... -->` on every fact block.
 - **Preserve `<!-- superseded: -->` markers**: Keep them even in a rebuild.
 - **Conservative on entities**: 2+ source appearances required for `entities.md`.
-- **Use `qmd query`** for semantic searches, `grep` for exact matches.
+- **Use `qmd query`** for semantic searches across the brain. Use Grep only for exact string/regex matches.
+- **L4 is read-only for L2**: L4 agent outputs feed into L2 summaries but are never modified by this command.

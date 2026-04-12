@@ -2,12 +2,12 @@
 name: weroad-brain-sync
 description: >
   Sync the WeRoad Brain — re-export all external sources (ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase),
-  backfill missing meeting digests, and refresh L1–L3 memory files from the latest data. Use this skill whenever the user
+  backfill missing meeting digests, and refresh L1–L2 memory files and service docs from the latest data. Use this skill whenever the user
   says "brain sync", "sync the brain", "refresh memory", "update sources", "pull sources", "run brain-sync", "backfill meetings",
   or asks to bring the knowledge graph up to date. Also trigger when the user asks about stale data or missing meeting digests.
 ---
 
-You are the brain's self-healing mechanism. Your job is to keep the L1–L3 knowledge files fresh by diffing source exports and agent outputs against the curated memory layer.
+You are the brain's self-healing mechanism. Your job is to keep the L1–L2 knowledge files and service docs fresh by diffing source exports and agent outputs against the curated memory layer.
 
 **Run frequency:** Daily (or on-demand).
 
@@ -17,8 +17,8 @@ All paths below are relative to the repo root (`git rev-parse --show-toplevel`).
 
 | What | Path |
 |------|------|
-| Agent scripts | `.agents/skills/weroad-brain-sync/bin/` |
-| Python utilities | `.agents/skills/weroad-brain-sync/utils/` |
+| Agent scripts | `.claude/skills/weroad-brain-sync/bin/` |
+| Python utilities | `.claude/skills/weroad-brain-sync/utils/` |
 | Source manifest | `sources.md` (repo root) |
 | Secrets | `.env.local` (repo root, gitignored) |
 | Export output | `src/clickup/`, `src/confluence/`, `src/gdrive/`, `src/github/`, `src/linear/`, `src/medium/` |
@@ -71,7 +71,7 @@ The sync runs in three phases.
 Run the export pipeline from the repo root:
 
 ```bash
-.agents/skills/weroad-brain-sync/bin/pull_sources sources.md
+.claude/skills/weroad-brain-sync/bin/pull_sources sources.md
 ```
 
 This reads `sources.md` line by line, strips `#` comments, and runs each command via `bin/<tool>`. It writes `src/.last_export.json` with a timestamp and success/failure counts.
@@ -121,26 +121,26 @@ Apply these updates during reconciliation. REMOVE marks facts as `<!-- supersede
 
 ### Phase 2 — Memory update (all layers)
 
-**Step 6: L3 — Per-service docs**
+**Step 6: Per-service docs**
 
 For each `src/github/` repo that changed since last sync:
-- Check if `memory/L3/<service>.AGENT.MD` exists and compare `verified:` date against `git log -1`
-- Stale L3 files: re-read repo source and update stack, schema, messaging, auth, APIs sections
-- New repos without L3: flag in the digest as candidates for L3 creation
+- Check if `outputs/services/<service>.AGENT.MD` exists and compare `verified:` date against `git log -1`
+- Stale service docs: re-read repo source and update stack, schema, messaging, auth, APIs sections
+- New repos without service docs: flag in the digest as candidates for doc creation
 
-**Step 7: L3/cross — Cross-cutting concerns**
+**Step 7: Cross-cutting concerns**
 
-After L3 updates, check if changes affect `memory/L3/cross/` topics (RabbitMQ topology, message schemas, producers/consumers). If messaging config, exchanges, or queue bindings changed, update the relevant cross file and mermaid diagrams.
+After service doc updates, check if changes affect `outputs/services/cross/` topics (RabbitMQ topology, message schemas, producers/consumers). If messaging config, exchanges, or queue bindings changed, update the relevant cross file and mermaid diagrams.
 
 **Step 8: L1 — Navigation MOCs**
 
-If Phase 3 added new L2/L3 files or entities, update `memory/L1/` MOCs (hub.md, entities.md, system-map.md, github.md) to keep navigation links and counts accurate.
+If Phase 2 added new L2 files, service docs, or entities, update `memory/L1/` MOCs (hub.md, entities.md, system-map.md, github.md) to keep navigation links and counts accurate.
 
 ### Finalize
 
 **Step 9: Generate digest**
 
-Write to `memory/L4/brain-sync/YYYY-MM-DD.md`:
+Write to `outputs/agents/brain-sync/YYYY-MM-DD.md`:
 
 ```markdown
 # Brain Sync — {YYYY-MM-DD}
@@ -164,8 +164,8 @@ Write to `memory/L4/brain-sync/YYYY-MM-DD.md`:
 ## L2 Updates Applied
 {List each L2 file updated, what changed, and the source that triggered the update}
 
-## L3 Updates Applied
-{List each L3 file updated or flagged for creation}
+## Service Doc Updates Applied
+{List each service doc updated or flagged for creation}
 
 ## Flagged for Human Review
 {Contradictions, dead references, new content needing manual curation}

@@ -1,5 +1,5 @@
 You are a WeRoad platform architect generating deep technical documentation for a service.
-Your output is an L3 `.AGENT.MD` file that lives in `memory/L3/` and serves as the definitive
+Your output is a `.AGENT.MD` file that lives in `outputs/services/` and serves as the definitive
 architecture reference for the repo — used by AI agents and developers to understand the service
 without reading every source file.
 
@@ -71,7 +71,7 @@ Read these files in this order (skip any that don't exist):
 
 ### 2. Check existing L3 file
 
-Read `memory/L3/{owner}-{repo}.AGENT.MD` if it exists. Compare against what you found.
+Read `outputs/services/{owner}-{repo}.AGENT.MD` if it exists. Compare against what you found.
 Preserve any manually-added context (marked with comments or clearly editorial) unless
 it's now wrong.
 
@@ -82,7 +82,7 @@ Also check CODEOWNERS if present.
 
 ## Output Format
 
-Write to `memory/L3/{owner}-{repo}.AGENT.MD` using this structure. Every section that
+Write to `outputs/services/{owner}-{repo}.AGENT.MD` using this structure. Every section that
 has data MUST be included. Skip sections only if the repo genuinely doesn't have that
 concept (e.g., no DB for a stateless service).
 
@@ -162,12 +162,12 @@ concept (e.g., no DB for a stateless service).
 ## 4. Update L3/cross RabbitMQ Topology Files (if service has messaging)
 
 If the service produces or consumes RabbitMQ events, you MUST also update the central
-RabbitMQ documentation files in `memory/L3/cross/`:
+RabbitMQ documentation files in `outputs/services/cross/`:
 
 ### Files to update:
-- `memory/L3/cross/weroad-rabbitmq-producers-consumers.md` — Add/update events in the reference table
-- `memory/L3/cross/weroad-rabbitmq-schema.md` — Add/update payload schemas for new events
-- `memory/L3/cross/weroad-rabbitmq-topology.md` — Update the mermaid diagram and matrices
+- `outputs/services/cross/weroad-rabbitmq-producers-consumers.md` — Add/update events in the reference table
+- `outputs/services/cross/weroad-rabbitmq-schema.md` — Add/update payload schemas for new events
+- `outputs/services/cross/weroad-rabbitmq-topology.md` — Update the mermaid diagram and matrices
 
 ### Process:
 
