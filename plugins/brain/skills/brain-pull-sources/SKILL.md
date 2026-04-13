@@ -17,17 +17,26 @@ All paths below are relative to the repo root (`git rev-parse --show-toplevel`).
 
 | What | Path |
 |------|------|
-| Agent scripts | `.claude/skills/brain-pull-sources/bin/` |
-| Python utilities | `.claude/skills/brain-pull-sources/utils/` |
-| Reference templates | `.claude/skills/brain-pull-sources/references/` |
+| Agent scripts | `bin/` (relative to this skill) |
+| Python utilities | `utils/` (relative to this skill) |
+| Reference templates | `references/` (relative to this skill) |
 | Source manifest | `sources.md` (repo root) |
 | Secrets | `.env.local` (repo root, gitignored) |
 | Export output | `src/clickup/`, `src/confluence/`, `src/gdrive/`, `src/github/`, `src/linear/`, `src/medium/` |
 | Last export manifest | `src/.last_export.json` |
 
+**Resolving the skill path at runtime:**
+
+```bash
+SKILL_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
+```
+
+When installed via `npx skills add`, the skill lives at `.claude/skills/brain-pull-sources/`.
+When installed via the Claude marketplace, resolve the path dynamically.
+
 ### Environment check (run first)
 
-If `sources.md` does not exist at the repo root, create one by copying `.claude/skills/brain-pull-sources/references/sources.md`
+If `sources.md` does not exist at the repo root, create one by copying `references/sources.md` from this skill's directory
 
 Before doing anything else, verify `.env.local` exists and has all required keys
 Only proceed to the pipeline once all keys are present and non-empty.
@@ -72,7 +81,7 @@ The sync runs in three phases.
 Run the export pipeline from the repo root:
 
 ```bash
-.claude/skills/brain-pull-sources/bin/pull_sources sources.md
+bin/pull_sources sources.md   # run from the skill directory
 ```
 
 This reads `sources.md` line by line, strips `#` comments, and runs each command via `bin/<tool>`. It writes `src/.last_export.json` with a timestamp and success/failure counts.
