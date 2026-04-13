@@ -195,6 +195,141 @@ RabbitMQ documentation files in `outputs/services/cross/`:
 - Mark unknown consumers/producers as `TBD` or `_source TBD_` — do not guess
 - Update the `<!-- verified: -->` comment with today's date
 
+## 5. Optional: Generate Deep Database Schema Doc (.DB.AGENT.MD)
+
+If the service uses PostgreSQL, also generate a dedicated deep-dive database schema file at
+`outputs/services/{owner}-{repo}.DB.AGENT.MD`.
+
+### 5.1 Detect PostgreSQL usage
+
+Check these indicators **in order** (stop at first match):
+
+| ORM | Detection file | Confirm with |
+|-----|---------------|-------------|
+| **Prisma** | `prisma/schema.prisma` or `*/prisma/schema.prisma` containing `provider = "postgresql"` | — (schema file is the source of truth) |
+| **MikroORM** | `mikro-orm.config.ts` or `*/mikro-orm.config.ts` | Presence of `entities` glob pointing to `*.entity.ts` files |
+| **Eloquent** (Laravel) | `.env.example` with `DB_CONNECTION=pgsql` **or** `config/database.php` with `'default' => ...pgsql` | `database/migrations/` directory exists |
+| **Knex** | `knexfile.js` or `knex` in `package.json` dependencies | `migrations/` directory exists |
+| **Kysely** | `kysely` in `package.json` dependencies | `.env.example` with `DATABASE_URL` containing `postgres` |
+
+**Edge cases:**
+- Check both root and `api/` subdirectory for monorepos.
+- Document ALL database connections if multiple exist.
+- Skip if the repo is a frontend-only app, CLI tool, infrastructure repo, or uses MySQL.
+
+### 5.2 Extract schema using the appropriate strategy
+
+**Strategy A — Prisma:**
+- Read `prisma/schema.prisma` (or `api/prisma/schema.prisma`)
+- Extract every `model`, `enum`, `@relation`, `@@map`, `@@index`, `@@unique`, and `///` doc comments
+
+**Strategy B — MikroORM:**
+- Find all `*.entity.ts` files
+- Extract `@Entity`, `@Property`, `@Enum`, relationship decorators, `@Index`, `@Unique`, `@Filter`
+- Check for shared base entities (e.g., `base.entity.ts`)
+- Count migrations
+
+**Strategy C — Eloquent (Laravel):**
+- Read all files in `app/Models/` + subdirectories
+- Extract `$table`, `$fillable`, `$casts`, `$dates`, `$hidden`, `$with`, relationship methods, scopes, `SoftDeletes`
+- Read `database/migrations/` for column types, nullable, defaults, indexes, FKs
+  - For 100+ migrations: read first 20 `create_*` + last 10 migrations
+- Count migrations
+
+**Strategy D — Knex / Kysely:**
+- Read all migration files in `migrations/` or `src/migrations/`
+- Extract `createTable` calls with column definitions
+- Check for generated TypeScript interfaces
+- Read seed files if `seeds/` exists
+
+### 5.3 Write `outputs/services/{owner}-{repo}.DB.AGENT.MD`
+
+```markdown
+# {owner}/{repo} — Database Schema
+
+> <one-line description of what this database stores>
+**Source:** `src/github/{owner}/{repo}/`
+
+<!-- verified: {today YYYY-MM-DD} | source: src/github/{owner}/{repo}/ -->
+
+## Overview
+
+- **ORM**: <Prisma | MikroORM | Eloquent (Laravel) | Knex | Kysely>
+- **Tables**: <count>
+- **Enums**: <count>
+- **Migrations**: <count> (latest: YYYY-MM-DD)
+- **Connections**: <list if multi-db, otherwise "single (pgsql)">
+
+## Tables
+
+### <table_name>
+
+<one-line purpose>
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| id | uuid | no | gen_random_uuid() | PK |
+| ... | ... | ... | ... | ... |
+
+**Indexes**: `idx_<name>` on (col1, col2), ...
+**Unique constraints**: (col1, col2), ...
+
+### <next_table>
+...
+
+## Relationships
+
+| From | To | Type | FK Column | Notes |
+|------|----|------|-----------|-------|
+| ... | ... | ... | ... | ... |
+
+## Enums
+
+### <EnumName>
+`VALUE_1` | `VALUE_2` | `VALUE_3` | ...
+
+## Key Patterns
+
+- **Soft deletes**: <list if any>
+- **Timestamps**: <pattern>
+- **UUID primary keys**: <yes/no, which tables>
+- **Multi-tenancy**: <pattern if any>
+- **Audit trail**: <pattern if any>
+
+## Status Lifecycles
+
+### <EntityName> Status
+```
+STATE_A → STATE_B → STATE_C
+        → STATE_D
+```
+
+## Owner
+
+<Team name>
+```
+
+**Formatting rules:**
+- Use actual PostgreSQL types (`varchar`, `text`, `integer`, `numeric`, `timestamp`, `boolean`, `bytea`, `bigint`)
+- For Prisma `@db.*` → map to explicit PG type
+- For MikroORM `@Property({ type: 'text' })` → use explicit type
+- For Eloquent migrations → exact Laravel-to-PG mapping
+- Sort tables alphabetically
+- Omit "Status Lifecycles" if no status enums
+- Omit "Multi-tenancy" if not applicable
+
+### 5.4 Quality gate for .DB.AGENT.MD
+
+After writing the file, run these checks:
+
+1. **Table count match:** count models/entities in source vs `### ` headings in `.DB.AGENT.MD`
+2. **No placeholders:** grep for `TODO`, `TBD`, `PLACEHOLDER`, `...`, or empty table cells
+3. **Relationship completeness:** every FK column in a table must appear in the Relationships table
+4. **Enum completeness:** every enum in source must appear in the Enums section
+5. **Cross-reference with `.AGENT.MD`:** if the `.AGENT.MD` mentions tables/entities not in `.DB.AGENT.MD`, investigate and add them
+
+If any check fails, re-read the source, fix the file, and re-run the check (max 3 iterations).
+
 ## Rules
 
 - Read the actual source code. Do not guess or infer from file names alone.
@@ -206,6 +341,8 @@ RabbitMQ documentation files in `outputs/services/cross/`:
   Messaging bugs are the hardest to debug — complete docs here save hours.
 - **Always update cross-cutting RabbitMQ files when the service has messaging** — keep the topology
   documentation in sync with the service-level documentation.
+- **Generate `.DB.AGENT.MD` for every PostgreSQL service** — the deep schema doc complements
+  the architecture overview in `.AGENT.MD`.
 - For dependencies: be specific. Not "calls catalog API" but "calls api-catalog via
   GraphQL at `API_CATALOG_INTERNAL_URL` for travel data".
 - Keep the file under 1000 lines. Compress tables, use abbreviations in table cells.

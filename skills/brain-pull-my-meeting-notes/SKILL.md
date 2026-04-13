@@ -65,9 +65,15 @@ Collect for each remaining event:
 
 For each meeting from Step 1, look for artifacts. **Only keep artifacts that match a meeting on the calendar** — silently discard anything that doesn't match. Never create `_unmatched/` folders or save unmatched files.
 
-### 2a. Event attachments (highest priority, exact match)
+### 2a. Event attachments (with date validation)
 
-If the event has `attachments[]`, these are explicitly linked docs. For each attachment with `mimeType: application/vnd.google-apps.document`, record its `fileId` as a notes source.
+If the event has `attachments[]`, these are explicitly linked docs. For each attachment with `mimeType: application/vnd.google-apps.document`, fetch the doc metadata (via `gws drive files get` with `fields: "id,name,createdTime,modifiedTime"`) and validate before accepting:
+
+**Date guard:** Recurring events often carry stale attachments from previous occurrences. Before accepting an attached doc as notes for this meeting:
+1. Check `modifiedTime` — if it was last modified **more than 7 days before** the meeting date, it is likely a stale leftover. Discard it and log: `"Skipping stale attachment <docName> (modified <date>, meeting <date>)"`.
+2. After export (Step 3), scan the first 10 lines of the converted markdown for a date string (e.g. `**Date:** Feb 20, 2026` or `YYYY-MM-DD` or `Month DD, YYYY`). If a date is found and it does **not** match the meeting date (tolerance: ±1 day), discard the exported file and log: `"Discarding attachment <docName> — content date <found> does not match meeting date <expected>"`.
+
+If the attachment passes validation, record its `fileId` as a notes source.
 
 ### 2b. Drive search for Gemini notes
 
