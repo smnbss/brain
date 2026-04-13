@@ -1,4 +1,12 @@
-# /brain-prepare-my-day
+---
+name: brain-prepare-my-day
+description: >
+  Fetch today's calendar and generate deep-dive and 1:1 agendas in parallel.
+  Use when the user says "prepare my day", "prep today", "today's meetings",
+  or asks to prepare agendas for today's meetings.
+---
+
+# Prepare My Day
 
 Fetch today's calendar, identify deep dives and 1:1s, and generate agendas for each meeting in parallel.
 
@@ -35,9 +43,9 @@ Today's meetings to prepare:
 
 If no deep dives or 1:1s are found, report "No deep dives or 1:1s on the calendar today" and stop.
 
-4. **Run deep-dive agents** — for each deep dive found, spawn an Agent running `.claude/agents/my-deep-dives/AGENT.md` with `LOOKAHEAD_DAYS: 1` (today only). If multiple deep dives exist, run them **in parallel** using concurrent Agent tool calls.
+4. **Run deep-dive skill** — for each deep dive found, spawn an Agent that invokes the `brain-prepare-my-deep-dives` skill with `LOOKAHEAD_DAYS: 1` (today only). If multiple deep dives exist, run them **in parallel** using concurrent Agent tool calls.
 
-5. **Run 1:1 agents** — for each 1:1 found, spawn an Agent running `.claude/agents/my-one-on-one/AGENT.md` scoped to that specific person with `LOOKAHEAD_DAYS: 1`. If multiple 1:1s exist, run them **in parallel** using concurrent Agent tool calls.
+5. **Run 1:1 skill** — for each 1:1 found, spawn an Agent that invokes the `brain-prepare-my-one-on-one` skill with `LOOKAHEAD_DAYS: 1`. If multiple 1:1s exist, run them **in parallel** using concurrent Agent tool calls.
 
    Steps 4 and 5 can run in parallel with each other — launch all agents at once.
 
@@ -49,10 +57,10 @@ Prep complete:
 ✓ 1:1 Ryan → outputs/agents/my-one-on-one/ryan.md
 ```
 
-## Agent references
+## Skill references
 
-- Deep dives: `.claude/agents/my-deep-dives/AGENT.md` — one file per team in `outputs/agents/my-deep-dives/`
-- 1:1s: `.claude/agents/my-one-on-one/AGENT.md` — one file per person in `outputs/agents/my-one-on-one/`
+- Deep dives: `brain-prepare-my-deep-dives` skill — one file per team in `outputs/agents/my-deep-dives/`
+- 1:1s: `brain-prepare-my-one-on-one` skill — one file per person in `outputs/agents/my-one-on-one/`
 
 ## When to use
 

@@ -1,4 +1,12 @@
-# /brain-morning-start
+---
+name: brain-morning-start
+description: >
+  Daily bootstrap: update tools, sync brain sources, harvest meeting notes,
+  and prepare today's agendas. Use when the user says "morning start",
+  "start my day", "daily bootstrap", or "morning routine".
+---
+
+# Morning Start
 
 Daily bootstrap: update tools (brew, npm, gstack, python), sync brain sources, harvest yesterday's meeting notes, and prepare today's deep-dive and 1:1 agendas.
 
@@ -20,19 +28,19 @@ Daily bootstrap: update tools (brew, npm, gstack, python), sync brain sources, h
 
 ## Part 2 — Brain sync
 
-Run `/brain-sync` to refresh L2 memory files from source exports and agent outputs. This keeps the brain's knowledge layer up to date with the latest data from ClickUp, Linear, GitHub, and other sources.
+Run the `brain-pull-sources` skill to refresh L2 memory files from source exports and agent outputs. This keeps the brain's knowledge layer up to date with the latest data from ClickUp, Linear, GitHub, and other sources.
 
 Run this as a background agent so Parts 3 and 4 can start in parallel.
 
 ## Part 3 — Harvest yesterday's meeting notes
 
-Run the meeting harvester (see `.claude/skills/weroad-brain-sync/references/meetings.md`) for **yesterday** (the default range). This fetches calendar events, grabs Gemini notes and recording transcripts from Google Drive attachments, and produces a daily digest with decisions and action items.
+Run the `brain-pull-my-meeting-notes` skill for **yesterday** (the default range). This fetches calendar events, grabs Gemini notes and recording transcripts from Google Drive attachments, and produces a daily digest with decisions and action items.
 
 Output goes to `src/gws/gmeet/YYYY/WNN/MM-DD/`.
 
 ## Part 4 — Prepare today's meetings
 
-Run `/brain-prepare-my-day` to prepare agendas for all deep dives and 1:1s happening today. This fetches today's calendar, classifies events, and spawns the deep-dive and 1:1 agents in parallel.
+Run the `brain-prepare-my-day` skill to prepare agendas for all deep dives and 1:1s happening today. This fetches today's calendar, classifies events, and spawns the deep-dive and 1:1 agents in parallel.
 
 Parts 2, 3, and 4 can all run in parallel — launch them at the same time.
 

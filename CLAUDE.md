@@ -1,23 +1,18 @@
 # Brain — AI Skills Repository
 
-AI agent skills for building and syncing the WeRoad knowledge brain. Skills follow the Agent Skills open standard (`SKILL.md` with YAML frontmatter) and are compatible with 40+ tools including Claude Code, Cursor, Codex CLI, Gemini CLI, GitHub Copilot, and more.
+AI agent skills for building and syncing the WeRoad knowledge brain. Skills follow the [Agent Skills open standard](https://skills.sh/) (`SKILL.md` with YAML frontmatter) and are compatible with 40+ tools including Claude Code, Gemini CLI, Codex CLI, Cursor, Copilot, and more.
 
-**Distribution:** Claude Code users get skills via the plugin marketplace (auto-updates). All other tools use `npx skills add`.
+**Distribution:** `npx skills add smnbss/brain` — one command, all CLIs.
 
 ## Repository Structure
 
 ```
-plugins/brain/
-  .claude-plugin/plugin.json    # Plugin metadata
-  commands/<command-name>.md    # Slash commands (invoked via /command-name)
-  skills/<skill-name>/
-    SKILL.md                    # The skill definition
-    bin/                        # Optional: shell scripts
-    utils/                      # Optional: Python utilities
-    references/                 # Optional: reference templates
+skills/<skill-name>/
+  SKILL.md                    # The skill definition
+  bin/                        # Optional: shell scripts
+  utils/                      # Optional: Python utilities
+  references/                 # Optional: reference templates
 ```
-
-The marketplace registry is at `.claude-plugin/marketplace.json`.
 
 ## Skill Format
 
@@ -53,15 +48,10 @@ description: When to use this skill (one sentence — this is shown to the AI as
 | `brain-pull-my-meeting-notes` | Harvest meeting notes, recordings, and transcripts from Google Calendar and Drive |
 | `brain-prepare-my-one-on-one` | Prepare 1:1 meeting agendas from Linear, brain context, and previous agendas |
 | `brain-prepare-my-deep-dives` | Prepare deep-dive meeting agendas from Linear project data per team |
-
-## Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `/brain-morning-start` | Daily bootstrap: update tools, sync brain, harvest meeting notes, prepare agendas |
-| `/brain-prepare-my-day` | Fetch today's calendar and generate deep-dive and 1:1 agendas in parallel |
-| `/brain-push-reports` | Push latest agent report outputs to ClickUp document pages |
-| `/brain-weekly-review` | Compile weekly summary from Workflowy, X posts, and Linear updates |
+| `brain-morning-start` | Daily bootstrap: update tools, sync brain, harvest meeting notes, prepare agendas |
+| `brain-prepare-my-day` | Fetch today's calendar and generate deep-dive and 1:1 agendas in parallel |
+| `brain-push-reports` | Push latest agent report outputs to ClickUp document pages |
+| `brain-weekly-review` | Compile weekly summary from Workflowy, X posts, and Linear updates |
 
 ## Naming Conventions
 

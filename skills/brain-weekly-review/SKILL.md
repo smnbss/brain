@@ -1,4 +1,12 @@
-# /brain-weekly-review
+---
+name: brain-weekly-review
+description: >
+  Compile a weekly summary from Workflowy notes, X posts, and Linear project updates.
+  Use when the user says "weekly review", "week summary", "what happened this week",
+  or asks for a weekly retrospective of their activity.
+---
+
+# Weekly Review
 
 Compile a weekly summary from Workflowy notes, X posts, and Linear project updates into a single review.
 

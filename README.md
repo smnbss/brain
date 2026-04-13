@@ -4,40 +4,13 @@
 
 AI agent skills for building and syncing the WeRoad knowledge brain. One repository, every tool.
 
-## How to Use
-
-### Claude Code (recommended — zero friction)
-
-Add this marketplace to your project's `.claude/settings.json`:
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "smnbss-brain": {
-      "source": {
-        "source": "github",
-        "repo": "smnbss/brain"
-      },
-      "autoUpdate": true
-    }
-  },
-  "enabledPlugins": {
-    "brain@smnbss-brain": true
-  }
-}
-```
-
-Claude will prompt you to trust the marketplace on first open. After that, skills auto-update with every conversation.
-
-**Note**: Plugins can also be managed via the Claude TUI via the `/plugin` shortcut.
-
-### Other Tools (Cursor, Codex CLI, Gemini CLI, Copilot, etc.)
-
-Use [skills.sh](https://skills.sh/) to install skills into 40+ AI coding tools.
+## Install
 
 ```bash
 npx skills add smnbss/brain
 ```
+
+Works with Claude Code, Gemini CLI, Codex CLI, Cursor, Copilot, and 30+ other tools.
 
 Install specific skills or target specific tools:
 
@@ -47,23 +20,19 @@ npx skills add smnbss/brain --skill brain-pull-sources -a cursor -a codex
 
 ## Available Skills
 
-### Brain (`brain`)
-
 | Skill | Description |
 |-------|-------------|
 | `brain-pull-sources` | Export all external sources — ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase |
 | `brain-rebuild-services` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
 | `brain-rebuild-memory` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
 | `brain-git-sync` | Commit and push all brain changes |
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `/morning-start` | Update tools, sync brain, harvest meeting notes, prepare today's meetings |
-| `/prepare-my-day` | Prepare agendas for today's deep dives and 1:1s |
-| `/push-reports` | Push latest report outputs to ClickUp document pages |
-| `/weekly-review` | Compile weekly summary from workflowy + x.com + linear outputs |
+| `brain-pull-my-meeting-notes` | Harvest meeting notes, recordings, and transcripts from Google Calendar and Drive |
+| `brain-prepare-my-one-on-one` | Prepare 1:1 meeting agendas from Linear, brain context, and previous agendas |
+| `brain-prepare-my-deep-dives` | Prepare deep-dive meeting agendas from Linear project data per team |
+| `brain-morning-start` | Daily bootstrap: update tools, sync brain, harvest meeting notes, prepare agendas |
+| `brain-prepare-my-day` | Fetch today's calendar and generate deep-dive and 1:1 agendas in parallel |
+| `brain-push-reports` | Push latest agent report outputs to ClickUp document pages |
+| `brain-weekly-review` | Compile weekly summary from Workflowy, X posts, and Linear updates |
 
 ## Required Environment
 
@@ -92,27 +61,32 @@ GCP_PROJECT_ID=...
 
 ```
 smnbss/brain/
-├── .claude-plugin/marketplace.json     # Registry of available plugins
-├── plugins/
-│   └── brain/
-│       ├── .claude-plugin/plugin.json
-│       ├── commands/
-│       │   ├── morning-start.md
-│       │   ├── prepare-my-day.md
-│       │   ├── push-reports.md
-│       │   └── weekly-review.md
-│       └── skills/
-│           ├── brain-pull-sources/
-│           │   ├── SKILL.md
-│           │   ├── bin/
-│           │   ├── utils/
-│           │   └── references/
-│           ├── brain-git-sync/
-│           │   └── SKILL.md
-│           ├── brain-rebuild-memory/
-│           │   └── SKILL.md
-│           └── brain-rebuild-services/
-│               └── SKILL.md
+├── skills/
+│   ├── brain-pull-sources/
+│   │   ├── SKILL.md
+│   │   ├── bin/
+│   │   ├── utils/
+│   │   └── references/
+│   ├── brain-rebuild-services/
+│   │   └── SKILL.md
+│   ├── brain-rebuild-memory/
+│   │   └── SKILL.md
+│   ├── brain-git-sync/
+│   │   └── SKILL.md
+│   ├── brain-pull-my-meeting-notes/
+│   │   └── SKILL.md
+│   ├── brain-prepare-my-one-on-one/
+│   │   └── SKILL.md
+│   ├── brain-prepare-my-deep-dives/
+│   │   └── SKILL.md
+│   ├── brain-morning-start/
+│   │   └── SKILL.md
+│   ├── brain-prepare-my-day/
+│   │   └── SKILL.md
+│   ├── brain-push-reports/
+│   │   └── SKILL.md
+│   └── brain-weekly-review/
+│       └── SKILL.md
 ├── CLAUDE.md
 ├── AGENTS.md -> CLAUDE.md
 └── README.md
@@ -120,5 +94,5 @@ smnbss/brain/
 
 **Design decisions:**
 - Skills follow the [Agent Skills open standard](https://skills.sh/) (`SKILL.md` with YAML frontmatter) — compatible with 40+ tools
-- Claude marketplace is the primary distribution (auto-updates); `npx skills` covers everything else
-- One plugin (`brain`) groups all knowledge management skills together
+- Single distribution path: `npx skills add` handles all CLIs
+- No CLI-specific packaging — one format, works everywhere

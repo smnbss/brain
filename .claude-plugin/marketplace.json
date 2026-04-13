@@ -1,9 +1,0 @@
-{
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "smnbss-brain",
-  "owner": { "name": "Simone Basso" },
-  "description": "AI agent skills for building and syncing the WeRoad knowledge brain",
-  "plugins": [
-    { "name": "brain", "source": "./plugins/brain", "description": "Knowledge brain sync, memory rebuild, and service docs generation" }
-  ]
-}

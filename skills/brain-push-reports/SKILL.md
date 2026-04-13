@@ -1,4 +1,12 @@
-# /brain-push-reports
+---
+name: brain-push-reports
+description: >
+  Push the latest agent report outputs to their matching ClickUp document pages.
+  Use when the user says "push reports", "sync reports to clickup",
+  "update clickup reports", or asks to publish agent outputs.
+---
+
+# Push Reports
 
 Push the latest agent report outputs to their matching ClickUp document pages (create or update).
 
