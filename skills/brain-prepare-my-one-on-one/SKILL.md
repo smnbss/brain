@@ -22,25 +22,11 @@ TODAY: (compute dynamically)
 
 ### Person mapping
 
-The calendar event summary contains "1:1" plus two names. Extract the other person's name and map to their context:
+The person mapping lives in `references/one-on-one-people.md` relative to this skill. Read it at the start of every run.
 
-| Name pattern (case-insensitive) | File slug | Email | Role | Linear teams | WorkFlowy |
-|--------------------------------|-----------|-------|------|--------------|-----------|
-| `Alex` (Gibertoni) | alex | alex.gibertoni@weroad.it | Engineering Manager | STOMP, CYCLOPS | workflowy.com/#/cb48ba306013 |
-| `Cass` or `Cassiano` (Vailati) | cass | cassiano.vailati@weroad.it | Engineering Manager | SAIAN, DEVOPS, IT, BUKTU | workflowy.com/#/445c94300d03 |
-| `Diana` or `Matteo` (Diana) | diana | matteo.diana@weroad.it | Engineering Manager | TIUM | workflowy.com/#/b8aeada94eea |
-| `Ryan` (Mancino) | ryan | ryan.mancino@weroad.it | Head of Data & Growth Analytics | Data Engineering | workflowy.com/#/8c429e5ed882 |
-| `Fabio` (Bin) | fabio | fabio.bin@weroad.it | Head of Brand & Community | ROCKET | — |
-| `Marina` (Cappannini) | marina | marina.cappannini@weroad.com | Head of Digital | — | — |
-| `Bera` or `Berardozzi` | bera | simone.berardozzi@weroad.com | Head of People | — | — |
-| `Giovanni` (Mautino) | giovanni | giovanni.mautino@weroad.com | Tech Lead (Saitama) | SAITAMA | — |
-| `Roberto` (Dedoro) | roberto | roberto.dedoro@weroad.it | DevOps Lead | DEVOPS, IT | workflowy.com/#/ae195c86a3b2 |
-| `Sergio` | sergio | sergio@weroad.it | — | — | workflowy.com/#/006d6d098893 |
-| `Ric` or `Riccardo` | ric | riccardo.cova@weroad.it | — | — | workflowy.com/#/8302a6c6f1ad |
-| `Andrea` + `Mattia` | andrea-mattia | andrea.damico@weroad.com, mattia.riva@onedaygroup.it | CEO + OneDay Group | — | workflowy.com/#/07f2377074c2 |
-| `Risso` or `Matteo Risso` | risso | matteo.risso@weroad.com | — | — | — |
+If the file does not exist, copy it from the skill's `references/` directory and tell the user to configure it before proceeding.
 
-If an event doesn't match any known person, log a warning and skip it.
+The calendar event summary contains "1:1" plus two names. Extract the other person's name and map to their context using the mapping file.
 
 ---
 
@@ -69,7 +55,7 @@ Filter results:
    - `attendees[]` (names/emails — use to confirm person identity)
    - `description` (may contain WorkFlowy or other links)
 
-**Person slug extraction:** From the summary, strip "1:1", "Simone", "Simon", "/", separators. Match the remaining name against the mapping table above using the attendee email as confirmation.
+**Person slug extraction:** From the summary, strip "1:1", your name, "/", separators. Match the remaining name against the mapping file using the attendee email as confirmation.
 
 ---
 
@@ -165,7 +151,7 @@ Extract any relevant decisions, blockers, or action items from the last 1-2 week
 
 ## Step 5 — Generate the agenda
 
-Combine all data sources to produce a **fact-based 1:1 agenda**. The agenda should be ready to use in the meeting — a clear picture of where things stand so Simone can decide what to dig into.
+Combine all data sources to produce a **fact-based 1:1 agenda**. The agenda should be ready to use in the meeting — a clear picture of where things stand so you can decide what to dig into.
 
 ### Fact-first principle
 
@@ -210,7 +196,7 @@ If a project has no update text, say "No update text since <date>." — don't dr
 - Always include an empty `## Your topics` section at the end for them to add items
 
 ### Tone
-Factual, concise, neutral. Present the data; Simone will decide what matters.
+Factual, concise, neutral. Present the data; you will decide what matters.
 
 Examples:
 - "Target: Apr 9. Status: On Track. Last update: Apr 7."

@@ -2,7 +2,7 @@
 
 [![skills.sh](https://img.shields.io/badge/skills.sh-compatible-blue)](https://skills.sh)
 
-AI agent skills for building and syncing the WeRoad knowledge brain. One repository, every tool.
+AI agent skills for building and syncing a knowledge brain. One repository, every tool.
 
 ## Install
 

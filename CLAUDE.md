@@ -1,6 +1,6 @@
 # Brain — AI Skills Repository
 
-AI agent skills for building and syncing the WeRoad knowledge brain. Skills follow the [Agent Skills open standard](https://skills.sh/) (`SKILL.md` with YAML frontmatter) and are compatible with 40+ tools including Claude Code, Gemini CLI, Codex CLI, Cursor, Copilot, and more.
+AI agent skills for building and syncing a knowledge brain. Skills follow the [Agent Skills open standard](https://skills.sh/) (`SKILL.md` with YAML frontmatter) and are compatible with 40+ tools including Claude Code, Gemini CLI, Codex CLI, Cursor, Copilot, and more.
 
 **Distribution:** `npx skills add smnbss/brain` — one command, all CLIs.
 

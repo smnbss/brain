@@ -188,9 +188,10 @@ def rewrite_links(content: str, current_file_path: str, link_map: dict[str, str]
             rel = os.path.relpath(target_path, current_dir)
             return f"[{text}]({rel})"
 
-        # For unresolved Confluence relative URLs, prepend base URL
+        # For unresolved Confluence relative URLs, prepend base URL from env
         if _is_confluence_relative(url):
-            return f"[{text}](https://weroad.atlassian.net{url})"
+            base = os.getenv("CONFLUENCE_BASE_URL", "https://<your-org>.atlassian.net").rstrip("/")
+            return f"[{text}]({base}{url})"
 
         # Keep original URL as-is
         return match.group(0)

@@ -3,7 +3,7 @@ name: brain-rebuild-services
 description: Generate deep technical .AGENT.MD service documentation from cloned GitHub repos. Use when service architecture docs need to be created or updated.
 ---
 
-You are a WeRoad platform architect generating deep technical documentation for a service.
+You are a platform architect generating deep technical documentation for a service.
 Your output is a `.AGENT.MD` file that lives in `outputs/services/` and serves as the definitive
 architecture reference for the repo — used by AI agents and developers to understand the service
 without reading every source file.
@@ -11,8 +11,8 @@ without reading every source file.
 ## Input
 
 The user provides a repo name. Resolve it:
-- `community` → `src/github/weroad/community/`
-- `weroad/kaioh` → `src/github/weroad/kaioh/`
+- `community` → `src/github/<org>/community/`
+- `<org>/repo-name` → `src/github/<org>/repo-name/`
 
 If the repo directory doesn't exist in `src/github/`, stop and tell the user.
 
@@ -40,7 +40,7 @@ Read these files in this order (skip any that don't exist):
 - Read ALL migration files to understand schema evolution and current state
 
 **Messaging & events:**
-- Grep for `RabbitMQ`, `amqp`, `rmq`, `@weroad/nestjs-rmq`, `golira-rmq`
+- Grep for `RabbitMQ`, `amqp`, `rmq`, `@<org>/nestjs-rmq`, `<org>-rmq`
 - Find all consumers: grep for `@RabbitSubscribe`, `@MessagePattern`, `Consumer`, `consumer`
 - Find all emitters/producers: grep for `publish`, `emit`, `RabbitPublisher`, `Emitter`
 - Map exchange names, routing keys, payload shapes
@@ -54,7 +54,7 @@ Read these files in this order (skip any that don't exist):
 **Inter-service dependencies:**
 - Grep for HTTP clients: `axios`, `fetch`, `got`, `HttpService`, `@nestjs/axios`
 - Find service URLs in env: `*_URL`, `*_HOST`, `*_API_URL`
-- Find internal imports: `@weroad/*` packages
+- Find internal imports: `@<org>/*` packages
 - Map which services this repo calls and which call it
 
 **Auth & security:**
@@ -94,7 +94,7 @@ concept (e.g., no DB for a stateless service).
 ```markdown
 # {owner}/{repo}
 
-> {One-line description — what the service does in the WeRoad ecosystem}
+> {One-line description — what the service does in the ecosystem}
 **Source:** `src/github/{owner}/{repo}/`
 
 <!-- verified: {today YYYY-MM-DD} | source: src/github/{owner}/{repo}/ -->
@@ -170,9 +170,9 @@ If the service produces or consumes RabbitMQ events, you MUST also update the ce
 RabbitMQ documentation files in `outputs/services/cross/`:
 
 ### Files to update:
-- `outputs/services/cross/weroad-rabbitmq-producers-consumers.md` — Add/update events in the reference table
-- `outputs/services/cross/weroad-rabbitmq-schema.md` — Add/update payload schemas for new events
-- `outputs/services/cross/weroad-rabbitmq-topology.md` — Update the mermaid diagram and matrices
+- `outputs/services/cross/<org>-rabbitmq-producers-consumers.md` — Add/update events in the reference table
+- `outputs/services/cross/<org>-rabbitmq-schema.md` — Add/update payload schemas for new events
+- `outputs/services/cross/<org>-rabbitmq-topology.md` — Update the mermaid diagram and matrices
 
 ### Process:
 

@@ -209,7 +209,7 @@ This is a quick-reference table. No LLM needed, just format the data:
 | Time | Meeting | Attendees | Artifacts |
 |------|---------|-----------|-----------|
 | 10:00–10:30 | Simone / Cass 1:1 | Simone, Cass | [notes](simone-cass-1on1/notes.md) |
-| 11:00–12:00 | WBR WeRoad | 12 attendees | [notes](wbr-weroad/notes.md), [recording](wbr-weroad/recording.md) |
+| 11:00–12:00 | All Hands | 12 attendees | [notes](all-hands/notes.md), [recording](all-hands/recording.md) |
 
 **Total:** N meetings, Xh Ym total meeting time
 **Artifacts found:** N notes, M recordings, K transcripts

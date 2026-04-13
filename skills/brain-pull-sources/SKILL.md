@@ -1,7 +1,7 @@
 ---
 name: brain-pull-sources
 description: >
-  Sync the WeRoad Brain — re-export all external sources (ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase),
+  Sync the knowledge brain — re-export all external sources (ClickUp, Confluence, GDrive, Linear, GitHub, Medium, Metabase),
   backfill missing meeting digests, and refresh L1–L2 memory files and service docs from the latest data. Use this skill whenever the user
   says "pull sources", "update sources", "refresh sources", "export sources",
   or asks to bring the knowledge graph up to date. Also trigger when the user asks about stale data or missing meeting digests.
@@ -45,7 +45,7 @@ Only proceed to the pipeline once all keys are present and non-empty.
 |----------|---------|---------|
 | `CLICKUP_TOKEN` | `clickup_doc_to_md`, `clickup_prj_to_md` | ClickUp API personal token |
 | `CONFLUENCE_EMAIL` | `confluence_space_to_md` | Atlassian account email |
-| `CONFLUENCE_BASE_URL` | `confluence_space_to_md` | e.g. `https://weroad.atlassian.net/wiki` |
+| `CONFLUENCE_BASE_URL` | `confluence_space_to_md` | e.g. `https://<your-org>.atlassian.net/wiki` |
 | `CONFLUENCE_TOKEN` | `confluence_space_to_md` | Atlassian API token |
 | `LINEAR_TOKEN` | `linear_to_md` | Linear personal API key |
 | `METABASE_URL` | `metabase_index` | Metabase instance URL |

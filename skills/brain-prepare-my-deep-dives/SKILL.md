@@ -22,21 +22,11 @@ TODAY: (compute dynamically)
 
 ### Calendar-to-Linear team mapping
 
-The calendar event summary contains "Deep Dive" plus a team name. Extract the team slug and map it to one or more Linear team names:
+The team mapping lives in `references/deep-dive-teams.md` relative to this skill. Read it at the start of every run.
 
-| Calendar pattern (case-insensitive) | File slug | Linear teams |
-|-------------------------------------|-----------|--------------|
-| `SAITAMA` | saitama | SAITAMA |
-| `STOMP` | stomp | STOMP |
-| `CYCLOPS` | cyclops | CYCLOPS |
-| `DEVOPS` or `DEVOPS & IT` | devops | DEVOPS, IT |
-| `DATA` | data | Data Engineering |
-| `Tech` | tech | STAFF |
-| `BUKTU` | buktu | BUKTU |
-| `ROCKET` | rocket | ROCKET |
-| `SAIAN` | saian | SAIAN |
+If the file does not exist, copy it from the skill's `references/` directory and tell the user to configure it before proceeding.
 
-If an event doesn't match any known mapping, log a warning and skip it.
+The calendar event summary contains "Deep Dive" plus a team name. Extract the team slug and map it to one or more Linear team names using the mapping file.
 
 ---
 
@@ -64,7 +54,7 @@ Filter results:
    - `attendees[]` (names/emails)
    - `description` (contains ODG/Roadmap/Deck links — preserve these)
 
-**Team slug extraction:** Strip "Deep Dive", " - ", leading/trailing whitespace from the summary. Lowercase the remainder. Match against the mapping table above. Examples:
+**Team slug extraction:** Strip "Deep Dive", " - ", leading/trailing whitespace from the summary. Lowercase the remainder. Match against the mapping file. Examples:
 - `"SAITAMA - Deep Dive"` → `saitama`
 - `"DEVOPS & IT - Deep Dive"` → `devops`
 - `"Deep Dive Tech"` → `tech`
@@ -138,7 +128,7 @@ For each deep dive, analyze the project data and generate a **pointed, to-the-po
 - "3 weeks overdue. What's blocking?"
 - "No update in 14 days. Still on track?"
 - "Target is Apr 17 but still in Backlog. Realistic?"
-- "Alex leads ALL 10 projects. Capacity concern?"
+- "One person leads ALL 10 projects. Capacity concern?"
 
 ### "Your topics" section
 

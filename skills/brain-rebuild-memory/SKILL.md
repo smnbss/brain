@@ -35,12 +35,12 @@ For each top-level directory in `src/`, count files and list immediate children:
 |--------|-----------|
 | `src/clickup/` | `Docs BUKTU/`, `Docs Tium/`, `🐵 Monkeys Wiki/`, `📣 Releases Notes - 2024/2025/2026/` |
 | `src/confluence/` | `Intranet/`, `Monkeys Wiki/` |
-| `src/gdrive/` | `Monkeys/`, `Monkeys Heads/`, `Monkeys_Projects/`, `WeRoad ExCo/`, `WeRoad/` |
-| `src/github/` | `weroad/` (60 repos), `smnbss/` (personal) |
+| `src/gdrive/` | `Monkeys/`, `Monkeys Heads/`, `Monkeys_Projects/`, `<Org> ExCo/`, `<Org>/` |
+| `src/github/` | `<org>/` (repos), personal repos |
 | `src/gws/` | `gmeet/` (2025/, 2026/) — meeting transcripts by year |
-| `src/linear/` | `weroad/` (`MOL-issues/`, `all/`) |
+| `src/linear/` | `<org>/` (`MOL-issues/`, `all/`) |
 | `src/medium/` | `smnbss/` — Simone's blog posts |
-| `src/metabase/` | `weroad/` — collection/dashboard/card index |
+| `src/metabase/` | `<org>/` — collection/dashboard/card index |
 | `src/personio/` | `staff-roster.tsv` — HR roster |
 
 Verify these match reality — discover any new directories that appeared since last run.
@@ -49,8 +49,8 @@ Verify these match reality — discover any new directories that appeared since 
 
 Count `.AGENT.MD` files in `outputs/services/` and list `outputs/services/cross/` entries:
 
-- ~77 service docs: `weroad-<service>.AGENT.MD` (code/stack) + `weroad-<service>.DB.AGENT.MD` (database schema)
-- 3 cross-cutting: `weroad-rabbitmq-topology.md`, `weroad-rabbitmq-schema.md`, `weroad-rabbitmq-producers-consumers.md`
+- ~77 service docs: `<org>-<service>.AGENT.MD` (code/stack) + `<org>-<service>.DB.AGENT.MD` (database schema)
+- 3 cross-cutting: `<org>-rabbitmq-topology.md`, `<org>-rabbitmq-schema.md`, `<org>-rabbitmq-producers-consumers.md`
 
 Record all counts — they go in the Phase 5 digest.
 
@@ -62,12 +62,12 @@ Each L2 file draws from specific inputs. Read those inputs, synthesize, write th
 
 ### 2a. Team files (`team-*.md`)
 
-**Inputs:** `src/personio/staff-roster.tsv` + `src/clickup/Docs {TeamName}/` + `src/linear/weroad/` + `outputs/services/*.AGENT.MD` (ownership)
+**Inputs:** `src/personio/staff-roster.tsv` + `src/clickup/Docs {TeamName}/` + `src/linear/<org>/` + `outputs/services/*.AGENT.MD` (ownership)
 
 For each team, produce `memory/L2/team-<name>.md`:
 - **Members** — from `staff-roster.tsv` + any org config in github repos
 - **Services owned** — from service docs tagged to this team (scan AGENT.MD frontmatter/headers)
-- **Active projects** — from `src/linear/weroad/all/` (match team labels)
+- **Active projects** — from `src/linear/<org>/all/` (match team labels)
 - **Docs pointers** — paths to their ClickUp docs folder, Confluence pages
 - **Recent releases** — from `src/clickup/📣 Releases Notes - 2026/` (match team name)
 
@@ -83,7 +83,7 @@ Known teams: Buktu, Tium, SAIan, Saitama, Voyager, DevOps, CyclOps, Stomp, Rocke
 
 ### 2c. technologies.md
 
-**Inputs:** `outputs/services/*.AGENT.MD` (stack sections) + `src/github/weroad/` (repo languages/frameworks)
+**Inputs:** `outputs/services/*.AGENT.MD` (stack sections) + `src/github/<org>/` (repo languages/frameworks)
 
 - Aggregate tech stacks from all service docs (language, framework, DB, messaging)
 - Group by layer: frontend, backend, data, infra
@@ -121,7 +121,7 @@ Known teams: Buktu, Tium, SAIan, Saitama, Voyager, DevOps, CyclOps, Stomp, Rocke
 
 ### 2h. exco.md
 
-**Inputs:** `src/gdrive/WeRoad ExCo/`
+**Inputs:** `src/gdrive/<Org> ExCo/`
 
 - List executive/board documents
 - Group by type (board decks, financial reports, investor updates)
@@ -213,7 +213,7 @@ Each source MOC contains:
 | `teams.md` | All `memory/L2/team-*.md` files + `src/personio/staff-roster.tsv` |
 | `product-areas.md` | `memory/L2/releases.md` + team L2 files (group features by product area) |
 | `business-domains.md` | `memory/L2/exco.md` + `memory/L2/intranet.md` + `memory/L2/one-pagers.md` |
-| `data-model.md` | `outputs/services/weroad-dbt.AGENT.MD` + `outputs/services/weroad-dashboards.AGENT.MD` + BigQuery metadata |
+| `data-model.md` | `outputs/services/<org>-dbt.AGENT.MD` + `outputs/services/<org>-dashboards.AGENT.MD` + BigQuery metadata |
 | `entities.md` | Full scan of all L2 files — anything appearing in 2+ sources gets an entry |
 | `tone-of-voice.md` | `src/medium/smnbss/` — Simone's writing voice analysis |
 | `skills.md` | `.claude/skills/*/SKILL.md` — enumerate all skills |
