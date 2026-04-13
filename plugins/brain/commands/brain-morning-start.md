@@ -1,6 +1,6 @@
-# /morning-start
+# /brain-morning-start
 
-Update tools, sync brain, harvest yesterday's meeting notes, and prepare today's meetings.
+Daily bootstrap: update tools (brew, npm, gstack, python), sync brain sources, harvest yesterday's meeting notes, and prepare today's deep-dive and 1:1 agendas.
 
 ## Part 1 — Update tools & sync
 
@@ -32,7 +32,7 @@ Output goes to `src/gws/gmeet/YYYY/WNN/MM-DD/`.
 
 ## Part 4 — Prepare today's meetings
 
-Run `/prepare-my-day` to prepare agendas for all deep dives and 1:1s happening today. This fetches today's calendar, classifies events, and spawns the deep-dive and 1:1 agents in parallel.
+Run `/brain-prepare-my-day` to prepare agendas for all deep dives and 1:1s happening today. This fetches today's calendar, classifies events, and spawns the deep-dive and 1:1 agents in parallel.
 
 Parts 2, 3, and 4 can all run in parallel — launch them at the same time.
 

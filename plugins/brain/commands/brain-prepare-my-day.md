@@ -1,6 +1,6 @@
-# /prepare-my-day
+# /brain-prepare-my-day
 
-Prepare agendas for all deep dives and 1:1s happening today. Fetches today's calendar, then spawns the deep-dive and 1:1 agents for each matching meeting.
+Fetch today's calendar, identify deep dives and 1:1s, and generate agendas for each meeting in parallel.
 
 ## Steps
 

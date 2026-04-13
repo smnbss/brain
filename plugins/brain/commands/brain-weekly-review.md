@@ -1,6 +1,6 @@
-# /weekly-review
+# /brain-weekly-review
 
-Compile a weekly summary from workflowy, x.com, and linear-project-updates outputs.
+Compile a weekly summary from Workflowy notes, X posts, and Linear project updates into a single review.
 
 ## Steps
 1. Read the latest file from `outputs/agents/my-workflowy/` (this week's daily notes)

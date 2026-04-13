@@ -1,4 +1,6 @@
-Push the latest report outputs to ClickUp document pages.
+# /brain-push-reports
+
+Push the latest agent report outputs to their matching ClickUp document pages (create or update).
 
 ## Steps
 

@@ -58,10 +58,10 @@ description: When to use this skill (one sentence — this is shown to the AI as
 
 | Command | Description |
 |---------|-------------|
-| `/morning-start` | Update tools, sync brain, harvest meeting notes, prepare today's meetings |
-| `/prepare-my-day` | Prepare agendas for today's deep dives and 1:1s |
-| `/push-reports` | Push latest report outputs to ClickUp document pages |
-| `/weekly-review` | Compile weekly summary from workflowy + x.com + linear outputs |
+| `/brain-morning-start` | Daily bootstrap: update tools, sync brain, harvest meeting notes, prepare agendas |
+| `/brain-prepare-my-day` | Fetch today's calendar and generate deep-dive and 1:1 agendas in parallel |
+| `/brain-push-reports` | Push latest agent report outputs to ClickUp document pages |
+| `/brain-weekly-review` | Compile weekly summary from Workflowy, X posts, and Linear updates |
 
 ## Naming Conventions
 
