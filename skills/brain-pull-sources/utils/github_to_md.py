@@ -8,13 +8,13 @@ Usage:
 
 Examples:
     # Export a public repo
-    python github_to_md.py https://github.com/weroad/weroad
+    python github_to_md.py https://github.com/org/repo
 
     # Export with authentication (for private repos or higher rate limits)
-    python github_to_md.py https://github.com/weroad/weroad --token ghp_xxxx
+    python github_to_md.py https://github.com/org/repo --token ghp_xxxx
 
     # Force re-export all files
-    python github_to_md.py https://github.com/weroad/weroad --force
+    python github_to_md.py https://github.com/org/repo --force
 
 Output is saved to: src/github/<owner>/<repo>/
 
@@ -184,7 +184,7 @@ def api_get(url: str, token: str | None = None) -> dict | list:
     """Make authenticated GET request to GitHub API."""
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "weroad-github-to-md",
+        "User-Agent": "brain-github-to-md",
     }
     if token:
         headers["Authorization"] = f"token {token}"
@@ -207,7 +207,7 @@ def api_get(url: str, token: str | None = None) -> dict | list:
 
 def download_file(url: str, token: str | None = None) -> bytes:
     """Download raw file content from GitHub."""
-    headers = {"User-Agent": "weroad-github-to-md"}
+    headers = {"User-Agent": "brain-github-to-md"}
     if token:
         headers["Authorization"] = f"token {token}"
     
@@ -460,8 +460,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s https://github.com/weroad/weroad
-  %(prog)s https://github.com/weroad/weroad --token ghp_xxxx
+  %(prog)s https://github.com/org/repo
+  %(prog)s https://github.com/org/repo --token ghp_xxxx
   %(prog)s --list
         """
     )

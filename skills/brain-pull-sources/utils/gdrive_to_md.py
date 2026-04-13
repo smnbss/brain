@@ -466,7 +466,7 @@ def main():
 
         path_parts, drive_name = get_full_path(folder_id)
         # If the folder is the root of a shared drive, skip its name to avoid
-        # an extra "Drive" level (e.g. "WeRoad ExCo/Drive" → "WeRoad ExCo")
+        # an extra "Drive" level (e.g. "Org ExCo/Drive" → "Org ExCo")
         is_drive_root = (
             folder_info.get("driveId")
             and (folder_id == folder_info.get("driveId")

@@ -507,8 +507,8 @@ def main():
         description="Export Linear projects to src/linear/<workspace>/<team|all>/ as Markdown."
     )
     parser.add_argument("url", nargs="?",
-                        help="Linear URL — team: https://linear.app/weroad/team/HD/projects/all  "
-                             "or workspace: https://linear.app/weroad/projects/all")
+                        help="Linear URL — team: https://linear.app/org/team/HD/projects/all  "
+                             "or workspace: https://linear.app/org/projects/all")
     parser.add_argument("--token", default=os.environ.get("LINEAR_TOKEN", ""),
                         help="Linear API key (or set LINEAR_TOKEN env var)")
     parser.add_argument("--list", action="store_true",

@@ -378,7 +378,7 @@ def main():
         description="Export ALL Linear team issues (including triage) to Markdown."
     )
     parser.add_argument("url", nargs="?",
-                        help="Linear team URL — e.g. https://linear.app/weroad/team/MOL/...")
+                        help="Linear team URL — e.g. https://linear.app/org/team/MOL/...")
     parser.add_argument("--token", default=os.environ.get("LINEAR_TOKEN", ""),
                         help="Linear API key (or set LINEAR_TOKEN env var)")
     parser.add_argument("--list", action="store_true",

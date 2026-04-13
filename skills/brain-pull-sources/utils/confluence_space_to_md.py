@@ -8,14 +8,14 @@ Usage:
 
 Examples:
     # Export a space by URL
-    python confluence_space_to_md.py https://weroad.atlassian.net/wiki/spaces/ABC123/overview
+    python confluence_space_to_md.py https://<your-org>.atlassian.net/wiki/spaces/ABC123/overview
 
     # With explicit credentials
-    python confluence_space_to_md.py https://weroad.atlassian.net/wiki/spaces/ABC123/overview \
-        --token xxx --email user@weroad.travel
+    python confluence_space_to_md.py https://<your-org>.atlassian.net/wiki/spaces/ABC123/overview \
+        --token xxx --email user@example.com
 
     # Force re-export all pages
-    python confluence_space_to_md.py https://weroad.atlassian.net/wiki/spaces/ABC123/overview --force
+    python confluence_space_to_md.py https://<your-org>.atlassian.net/wiki/spaces/ABC123/overview --force
 
 Output is saved to:  src/confluence/<space name>/
 
@@ -655,7 +655,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Export a Confluence space to src/confluence/<space name>/ as Markdown files."
     )
-    parser.add_argument("url", nargs="?", help="Confluence space URL (e.g. https://weroad.atlassian.net/wiki/spaces/ABC123/overview)")
+    parser.add_argument("url", nargs="?", help="Confluence space URL (e.g. https://<your-org>.atlassian.net/wiki/spaces/ABC123/overview)")
     parser.add_argument("--token", default=os.environ.get("CONFLUENCE_TOKEN", ""),
                         help="Confluence API token (or set CONFLUENCE_TOKEN env var)")
     parser.add_argument("--email", default=os.environ.get("CONFLUENCE_EMAIL", ""),

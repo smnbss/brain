@@ -7,7 +7,7 @@ Exports all collections, dashboards, cards (questions), databases, tables,
 and metrics from a Metabase instance into a structured markdown index.
 
 Usage:
-    python metabase_to_md.py https://metabase.weroad.io/
+    python metabase_to_md.py https://metabase.example.io/
     python metabase_to_md.py --force   # re-export everything
     python metabase_to_md.py --list    # show registry
 
@@ -100,7 +100,7 @@ def print_registry():
 def parse_metabase_url(url: str) -> tuple[str, str]:
     """Return (base_url, instance_name) from a Metabase URL.
     Instance name uses the domain's second part (org name), e.g.:
-    metabase.weroad.io -> 'weroad', analytics.acme.com -> 'acme'."""
+    metabase.example.io -> 'example', analytics.acme.com -> 'acme'."""
     parsed = urlparse(url.rstrip("/"))
     base_url = f"{parsed.scheme}://{parsed.netloc}"
     parts = parsed.netloc.split(".")
@@ -245,7 +245,7 @@ def build_collection_tree(collections: list[dict]) -> dict[int, dict]:
 
 
 def resolve_collection_path(collection_id: Optional[int], tree: dict[int, dict]) -> str:
-    """Resolve full path like 'WeRoad / TO / Travels and Tours Portfolio'."""
+    """Resolve full path like 'Example / TO / Travels and Tours Portfolio'."""
     if collection_id is None or collection_id not in tree:
         return "Root"
     parts = []
@@ -457,7 +457,7 @@ def main():
         description="Export Metabase index to src/metabase/<instance>/ as Markdown."
     )
     parser.add_argument("url", nargs="?",
-                        help="Metabase URL — e.g. https://metabase.weroad.io/")
+                        help="Metabase URL — e.g. https://metabase.example.io/")
     parser.add_argument("--list", action="store_true",
                         help="List all previously exported instances and exit")
     parser.add_argument("--force", action="store_true",
