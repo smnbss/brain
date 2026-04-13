@@ -50,6 +50,9 @@ description: When to use this skill (one sentence — this is shown to the AI as
 | `brain-rebuild-services` | Generate deep service `.AGENT.MD` docs from cloned GitHub repos |
 | `brain-rebuild-memory` | Rebuild L2 (domain knowledge) and L1 (navigation MOCs) from `src/` + `outputs/services/` |
 | `brain-git-sync` | Commit and push all brain changes |
+| `brain-pull-my-meeting-notes` | Harvest meeting notes, recordings, and transcripts from Google Calendar and Drive |
+| `brain-prepare-my-one-on-one` | Prepare 1:1 meeting agendas from Linear, brain context, and previous agendas |
+| `brain-prepare-my-deep-dives` | Prepare deep-dive meeting agendas from Linear project data per team |
 
 ## Available Commands
 
