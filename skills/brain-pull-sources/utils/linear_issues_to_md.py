@@ -39,7 +39,7 @@ from typing import Optional
 import subprocess as _sp
 PROJECT_ROOT = _sp.run(
     ["git", "rev-parse", "--show-toplevel"],
-    capture_output=True, text=True, cwd=os.path.dirname(os.path.abspath(__file__))
+    capture_output=True, text=True,
 ).stdout.strip()
 
 

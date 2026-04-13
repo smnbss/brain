@@ -32,7 +32,7 @@ from rewrite_links import build_link_map, rewrite_links
 
 PROJECT_ROOT = subprocess.run(
     ["git", "rev-parse", "--show-toplevel"],
-    capture_output=True, text=True, cwd=os.path.dirname(os.path.abspath(__file__))
+    capture_output=True, text=True,
 ).stdout.strip()
 OUTPUT_BASE = os.path.join(PROJECT_ROOT, "src", "gdrive")
 REGISTRY_PATH = os.path.join(OUTPUT_BASE, ".registry.json")

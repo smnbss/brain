@@ -44,7 +44,7 @@ def _git_root() -> str:
     import subprocess
     return subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, cwd=os.path.dirname(os.path.abspath(__file__))
+        capture_output=True, text=True,
     ).stdout.strip()
 
 
