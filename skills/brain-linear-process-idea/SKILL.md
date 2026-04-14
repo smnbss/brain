@@ -15,12 +15,21 @@ and is tracked with a counter in the issue description.
 
 ## Input
 
-The user MUST provide a Linear project URL, e.g.:
+The user can provide a Linear project URL, e.g.:
 ```
 https://linear.app/weroad/project/super-edc40903e247/issues
 ```
 
-If no URL is provided, **stop immediately** and ask:
+**If no URL is provided**, read the `LINEAR_LOOP` env var from `.env.local` in the
+project root. It contains a semicolon-separated list of Linear project URLs:
+```bash
+# Example: LINEAR_LOOP=https://linear.app/weroad/project/super-xxx/overview;https://linear.app/weroad/project/others-yyy/issues;
+```
+
+Process **each project** in the list sequentially — find the first "Idea:" issue in
+Todo for each project and process it before moving to the next.
+
+If neither a URL nor `LINEAR_LOOP` is available, **stop immediately** and ask:
 > "I need a Linear project URL to process ideas from. Example: `https://linear.app/weroad/project/<slug>/issues`"
 
 ## Step 1 — Parse and fetch

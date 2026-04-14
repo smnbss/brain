@@ -54,6 +54,7 @@ description: When to use this skill (one sentence — this is shown to the AI as
 | `brain-weekly-review` | Compile weekly summary from Workflowy, X posts, and Linear updates |
 | `brain-linear-create-project-context` | Enrich a Linear project description with structured context from its issues |
 | `brain-linear-process-idea` | Pick next "Idea:" issue from a Linear project and refine it in 3 passes |
+| `brain-linear-process-tasks` | Pick next task from a Linear project, implement it, commit, and mark done |
 
 ## Naming Conventions
 
