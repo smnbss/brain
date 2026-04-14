@@ -37,11 +37,13 @@ notes, goals, constraints, links). This gets merged into the final description.
 
 ## Step 2A — Fetch existing project and issues
 
-Run these in parallel:
+**Important:** The Linear MCP `list_issues` tool does NOT resolve project slugs
+reliably. Always fetch the project first, then use the returned project **name**
+for `list_issues`.
 
 1. **Get the project** using the `get_project` Linear MCP tool with `query: "<slug>"`,
-   `includeResources: true`, `includeMembers: true`.
-2. **List all issues** using the `list_issues` Linear MCP tool with `project: "<slug>"`,
+   `includeResources: true`, `includeMembers: true`. Note the returned `name` and `id`.
+2. **List all issues** using the `list_issues` Linear MCP tool with `project: "<project name from step 1>"`,
    `limit: 250`. If `hasNextPage` is true, paginate with the cursor until all issues
    are fetched.
 
@@ -81,6 +83,9 @@ Read the existing project description (if any). Then analyze all issues to extra
   What's the overall momentum?
 - **Architecture/technical notes:** If issues reference specific files, repos, tools,
   or technical concepts, collect these into a coherent technical context section.
+- **Processing guidance:** Extract key file paths, repo references, conventions,
+  constraints, and related projects/resources that downstream skills need when
+  processing individual issues in this project.
 - **Open questions:** Issues that are ideas or have unresolved questions.
 
 ## Step 4 — Compose the description
@@ -105,6 +110,12 @@ Include issue counts per category.>
 <Architecture, key files, tools, dependencies, constraints — derived from issues
 and user-provided context. Only include if there's meaningful technical content.>
 
+## Processing Guidance
+
+<For downstream skills: key files/repos to reference, project conventions,
+constraints, and related projects/resources. Be specific: include absolute paths,
+file names, and commands when they appear in issues.>
+
 ## Open Questions & Ideas
 
 <Unresolved ideas or questions from issues. Reference issue IDs (e.g., SIM-3).>
@@ -122,6 +133,9 @@ and user-provided context. Only include if there's meaningful technical content.
   rewriting from scratch.
 - Keep it concise. This is a reference document, not a novel.
 - Use issue identifiers (e.g., SIM-5) when referencing specific issues.
+- In **Processing Guidance**, optimize for an agent that will later pick up a single
+  issue from this project. Give it the exact paths, conventions, and guardrails it
+  needs to succeed.
 
 ## Step 5 — Update the project
 
@@ -129,6 +143,12 @@ Use the `save_project` Linear MCP tool to update the description:
 - `id`: the project ID from Step 2
 - `description`: the composed Markdown
 - `summary`: a one-line summary (max 255 chars) if the current one is empty or generic
+
+Also post a project status update with `save_status_update`:
+- `type`: `"project"`
+- `project`: the project ID or slug
+- `health`: `"onTrack"`
+- `body`: a brief summary of what changed in the description and any next steps
 
 ## Step 6 — Report
 
