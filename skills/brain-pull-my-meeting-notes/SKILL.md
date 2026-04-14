@@ -291,6 +291,10 @@ Aggregate all per-meeting summaries into the daily digest:
 - Map decisions to the right L2 file based on topic (releases, teams, data, product areas, etc.)
 - If no meetings produced L2-worthy decisions, omit the Brain Updates section entirely
 
+**Linear project links:**
+- If meeting notes or transcripts mention specific Linear projects, resolve each project's URL via `get_project` or `list_projects`.
+- Format the project name as a markdown link: `[Project Name](url)` in the digest output (meeting summaries, Brain Updates, and action items).
+
 Save as `src/gws/gmeet/YYYY/WNN/MM-DD/MM-DD-digest.md`.
 
 ## Step 7 — Generate weekly digest

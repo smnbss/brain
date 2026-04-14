@@ -88,6 +88,7 @@ Do this for **each Linear team** in the row. If a row has multiple teams (e.g., 
 - `startDate`
 - `labels`
 - `createdAt`
+- `url`
 
 **Filter out:**
 - Projects with status "Completed" or "Cancelled"
@@ -155,7 +156,7 @@ Write one file per team to `outputs/agents/my-deep-dives/<slug>.md`.
 <!-- generated: YYYY-MM-DD -->
 
 ## <Section title>
-- **<Project name>** (<target date>) — <status/context>. <Pointed question>
+- **[<Project name>](url)** (<target date>) — <status/context>. <Pointed question>
 
 ## <Next section>
 ...
@@ -169,7 +170,7 @@ Write one file per team to `outputs/agents/my-deep-dives/<slug>.md`.
 
 | Project | Status | Lead | Target | Flag |
 |---------|--------|------|--------|------|
-| Project name | In Progress | Lead Name | Apr 30 | On Track |
+| [Project name](url) | In Progress | Lead Name | Apr 30 | On Track |
 | Another project | Planned | Lead Name | — | No target |
 | Overdue thing | In Progress | Lead Name | Mar 31 | OVERDUE |
 ```

@@ -107,7 +107,7 @@ Filter to active projects (not Completed, not Cancelled). **CRITICAL:** Only kee
 - DO NOT attribute other people's projects to this person
 
 Collect:
-- `name`, `status.name`, `lead.name`, `targetDate`, `priority.name`, `updatedAt`, `startDate`, `labels`
+- `name`, `status.name`, `lead.name`, `targetDate`, `priority.name`, `updatedAt`, `startDate`, `labels`, `url`
 
 **Compute flags** (same as deep-dives agent):
 - `OVERDUE`: targetDate in the past, status not Completed/Cancelled
@@ -237,7 +237,7 @@ Format:
 - **<Topic>** — <what changed since last agenda, with source>
 
 ## Delivery — Hard Deadlines
-- **<Project name>** (<target date>) — Status: <status>. Last update: <date>. <update text or "no update text">
+- **[<Project name>](url)** (<target date>) — Status: <status>. Last update: <date>. <update text or "no update text">
 
 ## At-risk / Stale
 - **<Item>** — <fact + date>
@@ -257,7 +257,7 @@ Format:
 
 | Project | Status | Lead | Target | Flag |
 |---------|--------|------|--------|------|
-| ... | ... | ... | ... | ... |
+| [Project name](url) | In Progress | Lead Name | Apr 30 | On Track |
 ```
 
 ---
