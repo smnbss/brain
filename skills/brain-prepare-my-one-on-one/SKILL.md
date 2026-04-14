@@ -20,13 +20,23 @@ LOOKAHEAD_DAYS: 7
 TODAY: (compute dynamically)
 ```
 
-### Person mapping
+### Person resolution
 
-The person mapping lives in `references/one-on-one-people.md` relative to this skill. Read it at the start of every run.
+Do NOT use a hardcoded mapping file. Resolve each person's identity from `memory/L1/team-members.md`, with brain search as a fallback.
 
-If the file does not exist, copy it from the skill's `references/` directory and tell the user to configure it before proceeding.
+For every 1:1 calendar event:
+1. **Extract the identifier** from the summary: strip "1:1", "Simone Basso", "/", " - ", separators. The remaining text is the raw identifier (e.g., `Bera`, `Alex`, `Cass`). Also inspect `attendees[]` for email and full-name hints.
+2. **Read `memory/L1/team-members.md`**. Look for a row where the **Name patterns** column matches the identifier (case-insensitive). If found, use that row for:
+   - `full_name`: from the Name patterns (prefer the full-name variant)
+   - `role`: from the **Role** column
+   - `team` / `department`: from the **Team / Department** column
+   - `email`: from the **Email** column, or fall back to calendar attendees
+   - `linear_teams`: from the **Linear teams** column (`—` means the person does not use Linear)
+3. **If not found in `memory/L1/team-members.md`**, search the brain using `qmd query "<identifier> role position team"`. Also try `qmd query "<identifier> people hr"`. Combine results to build the person's context.
 
-The calendar event summary contains "1:1" plus two names. Extract the other person's name and map to their context using the mapping file.
+**If identity still cannot be resolved** (neither `team-members.md` nor brain search returns a clear match):
+Stop and ask the user: *"I found a 1:1 with '<identifier>' but couldn't resolve who they are. Who is this person? (full name, role, team/department, email, Linear team names if any). Tip: update memory/L1/team-members.md or run brain-rebuild-memory so next time the lookup works automatically."*
+Do NOT skip the event silently — ask for clarification so the brain can be updated.
 
 ---
 
@@ -55,7 +65,7 @@ Filter results:
    - `attendees[]` (names/emails — use to confirm person identity)
    - `description` (may contain WorkFlowy or other links)
 
-**Person slug extraction:** From the summary, strip "1:1", your name, "/", separators. Match the remaining name against the mapping file using the attendee email as confirmation.
+**Person slug extraction:** From the summary, strip "1:1", "Simone Basso", "/", " - ", separators. The remaining identifier becomes the file slug (lowercased, spaces → hyphens). Example: `Bera` → `bera`, `Alex` → `alex`. Use this slug for `outputs/agents/my-one-on-one/<slug>.md`.
 
 ---
 
@@ -81,9 +91,13 @@ This previous agenda is KEY context. Many items will carry forward with an updat
 - They are a member of the project
 - The project is in a team they manage (unless they are also the lead)
 
-For each Linear team in the person's mapping, use the `list_projects` Linear MCP tool:
-- `team`: each Linear team name
+Only fetch Linear data if brain search indicates the person uses Linear (e.g., they are listed as a member/lead of Linear teams, or `qmd query "<full_name> Linear"` returns relevant hits).
+
+If Linear teams are known, query each with `list_projects`:
+- `team`: each known Linear team name
 - `limit`: 50
+
+If no Linear context is found, **skip all Linear sections entirely** (Sections 2–4 of the agenda can be populated from brain context and previous agendas only). Do not issue blanket cross-team Linear queries for people who are not on Linear.
 
 Filter to active projects (not Completed, not Cancelled). **CRITICAL:** Only keep projects where `lead.name` matches the person's name (case-insensitive) OR `lead.email` matches the person's email.
 
@@ -104,7 +118,7 @@ Collect:
 
 ### 3b. Issues assigned to this person (high priority / overdue)
 
-For each Linear team, use `list_issues` with filters:
+If the person has known Linear teams, query `list_issues` for each team. If no Linear context is found, skip this step entirely. Filters:
 - Assignee: the person (match by name or email)
 - Priority: Urgent or High
 - Status: not Done, not Cancelled

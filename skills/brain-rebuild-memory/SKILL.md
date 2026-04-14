@@ -211,6 +211,7 @@ Each source MOC contains:
 | L1 File | Derives from |
 |---------|-------------|
 | `teams.md` | All `memory/L2/team-*.md` files + `src/personio/staff-roster.tsv` |
+| `team-members.md` | `src/personio/staff-roster.tsv` + `memory/L2/team-*.md` members sections |
 | `product-areas.md` | `memory/L2/releases.md` + team L2 files (group features by product area) |
 | `business-domains.md` | `memory/L2/exco.md` + `memory/L2/intranet.md` + `memory/L2/one-pagers.md` |
 | `data-model.md` | `outputs/services/<org>-dbt.AGENT.MD` + `outputs/services/<org>-dashboards.AGENT.MD` + BigQuery metadata |
@@ -219,6 +220,47 @@ Each source MOC contains:
 | `skills.md` | `.claude/skills/*/SKILL.md` — enumerate all skills |
 | `system-map.md` | `.claude/agents/`, `.claude/skills/`, `.claude/commands/` — full system index |
 | `hub.md` | **Last** — reads all other L1 files, builds the top-level nav with counts |
+
+#### `memory/L1/teams.md`
+
+Generate this file from `memory/L2/team-*.md` + `src/personio/staff-roster.tsv` + any team data in `src/linear/` or `src/clickup/`.
+
+The file must contain a **machine-readable mapping table** at the top (after frontmatter) with these exact columns:
+
+```markdown
+| Team name | Calendar patterns | File slug | Linear teams | Members |
+|-----------|-------------------|-----------|--------------|---------|
+```
+
+- **Team name**: canonical team name (e.g., `Buktu`, `Tium`, `DevOps & IT`)
+- **Calendar patterns**: comma-separated, case-insensitive patterns used in calendar summaries (e.g., `Buktu`, `SAITAMA - Deep Dive`)
+- **File slug**: lowercase, no spaces, used for output filenames (e.g., `buktu`, `devops-it`)
+- **Linear teams**: comma-separated Linear team names, or `—` if none (e.g., `TEAM_BUKTU`, `DEVOPS, IT`)
+- **Members**: count of members from `team-members.md`, or list of names if count is small
+
+Below the table, keep human-readable sections (services owned, deep dive links, external systems) derived from L2 files.
+
+#### `memory/L1/team-members.md`
+
+Generate this file from `src/personio/staff-roster.tsv` (columns: `First Name | Last Name | Position | Department | Hire Date | Status | Supervisor`) + the Members sections of `memory/L2/team-*.md` + any `src/linear/` team membership exports.
+
+The file must contain a **machine-readable mapping table** at the top (after frontmatter) with these exact columns:
+
+```markdown
+| Name patterns | File slug | Email | Role | Team / Department | Linear teams |
+|---------------|-----------|-------|------|-------------------|--------------|
+```
+
+- **Name patterns**: pipe-separated, case-insensitive identifiers that could appear in calendar summaries (e.g., `Bera | Simone Berardozzi` or `Alex | Alessandro`)
+- **File slug**: lowercase, spaces → hyphens, used for output filenames (e.g., `bera`, `alex`)
+- **Email**: from Personio or Linear, or `—` if unknown
+- **Role**: Position from Personio (e.g., `Senior Digital Product Manager`)
+- **Team / Department**: Department from Personio, or team name from L2 files if different
+- **Linear teams**: comma-separated Linear team names the person belongs to, or `—` if none / not applicable
+
+Only include Active employees from the staff roster. If a nickname or alias is known from calendar patterns but not in Personio, add it as an extra Name pattern and mark the source as `user`.
+
+These two files are the **canonical source** for `brain-prepare-my-deep-dives` and `brain-prepare-my-one-on-one`. They must be regenerated on every rebuild so skills never use stale hardcoded mappings.
 
 ---
 

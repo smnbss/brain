@@ -22,11 +22,13 @@ TODAY: (compute dynamically)
 
 ### Calendar-to-Linear team mapping
 
-The team mapping lives in `references/deep-dive-teams.md` relative to this skill. Read it at the start of every run.
+Read `memory/L1/teams.md` at the start of every run. Extract the **machine-readable mapping table** (columns: Team name, Calendar patterns, File slug, Linear teams, Members).
 
-If the file does not exist, copy it from the skill's `references/` directory and tell the user to configure it before proceeding.
+The calendar event summary contains "Deep Dive" plus a team name. Extract the team slug and map it to one or more Linear team names using that table.
 
-The calendar event summary contains "Deep Dive" plus a team name. Extract the team slug and map it to one or more Linear team names using the mapping file.
+**If the team cannot be found in `memory/L1/teams.md`:**
+Stop and ask the user: *"I found a Deep Dive for '<team>' but it's not mapped in memory/L1/teams.md. What Linear team(s) should I map it to?"*
+Do NOT skip the event silently — ask for clarification so `brain-rebuild-memory` can be run later to update the mapping.
 
 ---
 
@@ -54,23 +56,27 @@ Filter results:
    - `attendees[]` (names/emails)
    - `description` (contains ODG/Roadmap/Deck links — preserve these)
 
-**Team slug extraction:** Strip "Deep Dive", " - ", leading/trailing whitespace from the summary. Lowercase the remainder. Match against the mapping file. Examples:
+**Team slug extraction:** Strip "Deep Dive", " - ", leading/trailing whitespace from the summary. Lowercase the remainder. Match against the Calendar patterns column in `memory/L1/teams.md`. Examples:
 - `"SAITAMA - Deep Dive"` → `saitama`
-- `"DEVOPS & IT - Deep Dive"` → `devops`
+- `"DEVOPS & IT - Deep Dive"` → `devops-it`
 - `"Deep Dive Tech"` → `tech`
 - `"DATA - Deep Dive"` → `data`
+
+Use the **File slug** from the matching row for the output filename (`outputs/agents/my-deep-dives/<slug>.md`).
 
 ---
 
 ## Step 2 — Fetch Linear projects for each team
 
-For each team in the mapping, query Linear for active projects (not completed, not cancelled):
+For each Linear team listed in the `Linear teams` column of the matching row, query Linear for active projects (not completed, not cancelled):
 
 Use the `list_projects` Linear MCP tool:
-- `team`: the Linear team name from the mapping
+- `team`: the Linear team name
 - `limit`: 50
 
-Do this for **each Linear team** in the mapping. If the mapping has multiple teams (e.g., DEVOPS + IT), query each and merge results, deduplicating by project ID.
+If the `Linear teams` column is `—` (none), skip all Linear queries and build the agenda from brain context only.
+
+Do this for **each Linear team** in the row. If a row has multiple teams (e.g., `DEVOPS, IT`), query each and merge results, deduplicating by project ID.
 
 **Collect for each project:**
 - `name`
