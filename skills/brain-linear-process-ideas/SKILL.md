@@ -1,5 +1,5 @@
 ---
-name: brain-linear-process-idea
+name: brain-linear-process-ideas
 description: >
   Pick the next "Idea:" issue from a Linear project, move it to In Progress, and
   iteratively improve it across 3 passes. Use when the user says "process idea",
@@ -60,8 +60,9 @@ When this skill runs repeatedly — whether via `/loop`, a scheduled trigger,
    every loop iteration as long as new comments keep arriving.
 6. **Termination:** The issue is fully processed when all 3 passes are complete
    AND no `<!-- agent-state: awaiting-response -->` marker exists AND no
-   unprocessed human comments remain. Only then report "Already complete" and
-   move to the next project.
+   unprocessed human comments remain. Before reporting "Already complete",
+   ensure the issue status is "In Progress" (move it if it's still in Todo
+   or another status). Then move to the next project.
 
 ## Step 1 — Parse and fetch
 
@@ -75,6 +76,11 @@ for `list_issues`.
 2. `list_issues` with `project: "<project name from step 1>"`, `state: "Todo"`, `limit: 100`
 3. `list_issues` with `project: "<project name from step 1>"`, `state: "In Progress"`, `limit: 100`
    — includes ideas already being processed (may have new comments to handle).
+4. `list_issues` with `project: "<project name from step 1>"`, `state: "Cancelled"`, `limit: 100`
+5. `list_issues` with `project: "<project name from step 1>"`, `state: "Duplicate"`, `limit: 100`
+
+Steps 4–5 are for display only — Cancelled and Duplicate issues appear in the
+diagnostic table but are **never eligible** for processing.
 
 ## Step 2 — List all issues and find the target
 
@@ -93,10 +99,15 @@ An issue is **eligible** if:
 - It is an `Idea:` issue in **In Progress** with all 3 passes complete AND
   unprocessed human comments (feedback pass needed).
 
+An issue is **never eligible** if its status is **Cancelled** or **Duplicate**.
+Skip these entirely — do not process, do not check for comments, do not move.
+
 For each issue, the `Eligible` column should show:
 - **YES — picked** for the eligible issue that wins the sort below
 - **YES — feedback** for eligible In Progress issues with new comments (if not the picked one)
 - `Yes — but <other ID> wins` for other eligible issues
+- `No — cancelled` for issues in Cancelled status
+- `No — duplicate` for issues in Duplicate status
 - `No — In Progress, no new comments` for In Progress `Idea:` issues with no unprocessed comments
 - `No — not eligible status` for `Idea:` issues in other statuses
 - `No — not "Idea:"` for issues whose title doesn't start with `Idea:`
@@ -188,8 +199,14 @@ human comments on every iteration:
    subsequent passes.
 
 **Early exit:** If no unprocessed comments are found AND all 3 passes are already
-complete (check the pass counter for `pass 3/3`), report:
-> "All passes complete, no new comments. Nothing to do for <ID>."
+complete (check the pass counter for `pass 3/3`):
+
+1. **Ensure status is "In Progress":** If the issue is still in "Todo" (or any
+   non-"In Progress" status), move it to "In Progress" using `save_issue`. This
+   catches ideas that were fully refined but whose status wasn't updated, or that
+   were moved back to Todo after processing.
+2. Report:
+   > "All passes complete, no new comments. Nothing to do for <ID>."
 
 Then move to the next project in the loop.
 

@@ -268,8 +268,27 @@ Implement the changes following best practices:
 1. **Read before writing** — understand the existing code before modifying it.
 2. **Make focused changes** — only change what the issue requires.
 3. **Follow existing patterns** — match the codebase's conventions.
-4. **Run tests** — execute the project's test suite and ensure tests pass.
-5. **Fix issues** — if tests fail, fix them before proceeding.
+
+## Step 7a — Verify & QA
+
+**Do not commit until this step passes.** This is a hard gate.
+
+1. **Run the test suite** — execute the project's tests (`npm test`, `pytest`,
+   `make test`, or whatever the project uses). All tests must pass.
+2. **Run linting / type checks** — if the project has a linter or type checker
+   (`npm run lint`, `mypy`, `tsc --noEmit`, etc.), run it. Zero new errors.
+3. **Smoke-test the change** — verify the implementation actually does what the
+   issue asked for. If it's a CLI change, run the command. If it's an API change,
+   hit the endpoint. If it's a UI change and a dev server is available, check it
+   in a browser.
+4. **Review your own diff** — run `git diff` and read every changed line. Look for:
+   - Accidental debug code left in
+   - Unrelated changes that snuck in
+   - Missing edge cases
+5. **Fix any failures** — if tests, lint, or the smoke test fail, fix the issues
+   and re-run this step. Do not proceed until everything is clean.
+
+Only after all checks pass, proceed to Step 8 (Commit).
 
 ## Step 7b — Feedback Pass (post-completion comments)
 
@@ -301,8 +320,9 @@ Maintain a feedback counter in the issue description:
    a. Move the issue back to **In Review**: `save_issue` with `state: "In Review"`.
    b. Report: `"Re-opened <ID>: <title> — new feedback requires changes."`
    c. Implement the changes following the same principles as Step 7 (read before
-      writing, focused changes, follow existing patterns, run tests).
-   d. Commit with a message referencing the issue and feedback pass:
+      writing, focused changes, follow existing patterns).
+   d. Run the full Step 7a verification (tests, lint, smoke test, diff review).
+   e. Commit with a message referencing the issue and feedback pass:
       ```
       fix: <short description> [<ID>] (feedback pass N)
       ```
