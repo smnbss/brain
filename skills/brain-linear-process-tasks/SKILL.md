@@ -55,8 +55,14 @@ When this skill runs repeatedly — whether via `/loop`, a scheduled trigger,
    incorporate the answer and resume implementation. If the answer raises new
    questions, post follow-ups and wait for the next iteration. This cycle repeats
    until the agent has no further open questions.
-4. **Termination:** The task is fully processed when:
-   - Implementation is complete, committed, and the issue is marked Done, OR
+4. **Feedback pass on new comments:** Even after the task is marked Done, if
+   new unprocessed human comments are found, the agent performs a **Feedback
+   Pass** (Step 7b) to incorporate the feedback — this may trigger additional
+   implementation work, re-opening the issue if needed. This repeats on every
+   loop iteration as long as new comments keep arriving.
+5. **Termination:** The task is fully processed when:
+   - Implementation is complete, committed, and the issue is marked Done, AND
+     no unprocessed human comments remain, OR
    - The agent has posted a question and is waiting for a reply (skip to next
      project in the loop).
    If the issue is already Done and no new comments exist, report "Already
@@ -77,7 +83,9 @@ for `list_issues`.
 3. If no specific issue:
    - `list_issues` with `project: "<project name from step 1>"`, `state: "In Progress"`, `limit: 100`
    - `list_issues` with `project: "<project name from step 1>"`, `state: "In Review"`, `limit: 100`
-   - Merge both result sets into a single list.
+   - `list_issues` with `project: "<project name from step 1>"`, `state: "Done"`, `limit: 100`
+   - Merge all result sets into a single list. Done issues are included so
+     the comment-check (Step 3) can detect new feedback on completed tasks.
 
 ## Step 2 — List all issues and find the target
 
@@ -93,27 +101,43 @@ can see what exists and which one will be picked:
 |----|-------|--------|----------|
 ```
 
-For each issue, the `Eligible` column should show:
-- **YES — picked** for the highest-priority `Task:` issue in In Progress or In Review (ties broken by oldest `createdAt`)
-- `Yes — but <other ID> has higher priority` for other `Task:` issues in In Progress or In Review
-- `No — not In Progress or In Review` for `Task:` issues in other statuses
-- `No — not "Task:"` for issues whose title doesn't start with `Task:`
-
-Sort the table by status (In Progress first, then In Review, then Todo, Backlog, Done),
-then by priority descending (Urgent > High > Medium > Low > None), then by
-`createdAt` ascending within the same priority.
-
-From the returned issues, find the **first** issue whose title starts with `"Task:"`
-(case-insensitive). Sort by **priority descending** first (Urgent → High → Medium →
-Low → None/unset), then by `createdAt` ascending (oldest first) to break ties within
-the same priority level.
+An issue is **eligible** if:
+- It is a `Task:` issue in **In Progress** or **In Review** (active work), OR
+- It is a `Task:` issue marked **Done** with unprocessed human comments
+  (feedback pass needed — check comments before rendering the table).
 
 Skip issues whose title does NOT start with `"Task:"` — those are ideas or
 other issue types handled by different skills.
 
-**If no eligible issue is found in In Progress or In Review:**
+For each issue, the `Eligible` column should show:
+- **YES — picked** for the eligible issue that wins the sort below
+- **YES — feedback** for eligible Done issues with new comments (if not the picked one)
+- `Yes — but <other ID> wins` for other eligible issues
+- `No — Done, no new comments` for Done `Task:` issues with no unprocessed comments
+- `No — not eligible status` for `Task:` issues in other statuses
+- `No — not "Task:"` for issues whose title doesn't start with `Task:`
+
+### Sorting and picking
+
+Sort **all eligible issues together** (In Progress, In Review, and Done with
+feedback) by **priority descending** first (Urgent > High > Medium > Low > None),
+then by **`createdAt` ascending** (oldest first) to break ties within the same
+priority.
+
+Pick the **first** issue from this sorted list. Priority always wins — an Urgent
+Done issue with feedback is picked before a Low-priority In Progress issue.
+
+Sort the diagnostic table the same way: priority descending, then `createdAt`
+ascending. Add a `Priority` column to make the ordering visible:
+
+```
+| ID | Title | Status | Priority | Eligible |
+|----|-------|--------|----------|----------|
+```
+
+**If no eligible issue is found:**
 Stop and report:
-> "No task issues (title starting with 'Task:') found In Progress or In Review for project <name>. Nothing to implement."
+> "No eligible task issues for project <name> — nothing In Progress/In Review and no completed tasks with new feedback."
 
 If there are task issues in other statuses (Todo, Backlog), mention
 them so the user knows what exists.
@@ -177,6 +201,10 @@ marked Done, report:
 > "Task already complete, no new comments. Nothing to do for <ID>."
 
 Then move to the next project in the loop.
+
+**Feedback trigger:** If unprocessed comments ARE found AND the issue is already
+marked Done, do NOT early-exit. Instead, acknowledge the comments (as above)
+and proceed to **Step 7b — Feedback Pass** to incorporate the new input.
 
 ## Step 4 — Read the full context
 
@@ -242,6 +270,59 @@ Implement the changes following best practices:
 3. **Follow existing patterns** — match the codebase's conventions.
 4. **Run tests** — execute the project's test suite and ensure tests pass.
 5. **Fix issues** — if tests fail, fix them before proceeding.
+
+## Step 7b — Feedback Pass (post-completion comments)
+
+This step runs when the issue is already Done but new unprocessed human comments
+have been found. It allows the task to be revisited based on feedback without
+losing the original implementation work.
+
+### Tracking
+
+Maintain a feedback counter in the issue description:
+
+```markdown
+<!-- task-feedback: pass N | last-updated: YYYY-MM-DD HH:MM -->
+```
+
+`N` starts at 1 and increments with each feedback pass.
+
+### What to do
+
+1. Re-read the full issue description, the original implementation context, and
+   the new comment(s).
+2. Determine what the feedback requires:
+   - **Bug report or correction** — the original implementation has an issue that
+     needs fixing.
+   - **Scope addition** — new requirements or follow-up work.
+   - **Question** — answer it in a comment (using the agent signature).
+   - **Approval or confirmation** — note the confirmation, no code change needed.
+3. **If code changes are needed:**
+   a. Move the issue back to **In Review**: `save_issue` with `state: "In Review"`.
+   b. Report: `"Re-opened <ID>: <title> — new feedback requires changes."`
+   c. Implement the changes following the same principles as Step 7 (read before
+      writing, focused changes, follow existing patterns, run tests).
+   d. Commit with a message referencing the issue and feedback pass:
+      ```
+      fix: <short description> [<ID>] (feedback pass N)
+      ```
+   e. Move the issue back to **Done**: `save_issue` with `state: "Done"`.
+4. **If no code changes are needed** (just a question or confirmation):
+   Post a comment with the answer/acknowledgment using the agent signature.
+5. Update the feedback counter in the issue description:
+   `<!-- task-feedback: pass N | last-updated: YYYY-MM-DD HH:MM -->`
+6. Post a comment summarizing what was done:
+   ```
+   Feedback Pass N: <what was addressed>.
+   ---
+   🤖 **Agent** | feedback-pass | <ISO-timestamp>
+   ```
+7. If the feedback raises questions the agent cannot resolve, follow the same
+   question protocol (post question, set awaiting-response marker, skip to next
+   project).
+
+After the feedback pass, skip to Step 9 (Update the project) with an updated
+summary, then Step 10 (mark Done — if reopened) and Step 11 (report).
 
 ## Step 8 — Commit
 

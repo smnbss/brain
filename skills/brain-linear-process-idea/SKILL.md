@@ -54,11 +54,14 @@ When this skill runs repeatedly — whether via `/loop`, a scheduled trigger,
    incorporate the answer and resume. If the answer raises new questions, post
    follow-ups and wait for the next iteration. This cycle repeats until the agent
    has no further open questions for the current pass.
-5. **Termination:** The issue is fully processed when all 3 passes are complete
-   AND no `<!-- agent-state: awaiting-response -->` marker exists on the issue.
-   If both conditions are met on a loop iteration, skip to Step 7 (Final update)
-   if it hasn't been done yet, or report "Already complete" and move to the next
-   project.
+5. **Feedback pass on new comments:** Even after all 3 passes are complete, if
+   new unprocessed human comments are found, the agent performs a **Feedback Pass**
+   (Step 6b) to incorporate the feedback and update the issue. This repeats on
+   every loop iteration as long as new comments keep arriving.
+6. **Termination:** The issue is fully processed when all 3 passes are complete
+   AND no `<!-- agent-state: awaiting-response -->` marker exists AND no
+   unprocessed human comments remain. Only then report "Already complete" and
+   move to the next project.
 
 ## Step 1 — Parse and fetch
 
@@ -70,6 +73,8 @@ for `list_issues`.
 
 1. `get_project` with `query: "<slug>"` — note the returned `name` and `id`.
 2. `list_issues` with `project: "<project name from step 1>"`, `state: "Todo"`, `limit: 100`
+3. `list_issues` with `project: "<project name from step 1>"`, `state: "In Progress"`, `limit: 100`
+   — includes ideas already being processed (may have new comments to handle).
 
 ## Step 2 — List all issues and find the target
 
@@ -83,26 +88,41 @@ what exists and which one will be picked:
 |----|-------|--------|----------|
 ```
 
+An issue is **eligible** if:
+- It is an `Idea:` issue in **Todo** (new idea to process), OR
+- It is an `Idea:` issue in **In Progress** with all 3 passes complete AND
+  unprocessed human comments (feedback pass needed).
+
 For each issue, the `Eligible` column should show:
-- **YES — picked** for the highest-priority `Idea:` issue in Todo (ties broken by oldest `createdAt`)
-- `Yes — but <other ID> has higher priority` for other `Idea:` issues in Todo
-- `No — not Todo` for `Idea:` issues in other statuses
+- **YES — picked** for the eligible issue that wins the sort below
+- **YES — feedback** for eligible In Progress issues with new comments (if not the picked one)
+- `Yes — but <other ID> wins` for other eligible issues
+- `No — In Progress, no new comments` for In Progress `Idea:` issues with no unprocessed comments
+- `No — not eligible status` for `Idea:` issues in other statuses
 - `No — not "Idea:"` for issues whose title doesn't start with `Idea:`
 
-Sort the table by status (Todo first, then In Progress, Backlog, In Review, Done),
-then by priority descending (Urgent > High > Medium > Low > None), then by
-`createdAt` ascending within the same priority.
+### Sorting and picking
 
-From the returned issues, find the **first** issue whose title starts with `"Idea:"`
-(case-insensitive). Sort by **priority descending** first (Urgent → High → Medium →
-Low → None/unset), then by `createdAt` ascending (oldest first) to break ties within
-the same priority level.
+Sort **all eligible issues together** (both Todo and In Progress with feedback)
+by **priority descending** first (Urgent > High > Medium > Low > None), then by
+**`createdAt` ascending** (oldest first) to break ties within the same priority.
 
-**If no "Idea:" issue is found in Todo:**
+Pick the **first** issue from this sorted list. Priority always wins — a High-priority
+In Progress issue with feedback is picked before a Low-priority Todo issue.
+
+Sort the diagnostic table the same way: priority descending, then `createdAt`
+ascending. Add a `Priority` column to make the ordering visible:
+
+```
+| ID | Title | Status | Priority | Eligible |
+|----|-------|--------|----------|----------|
+```
+
+**If no eligible issue is found:**
 Stop and report:
-> "No 'Idea:' issues found in Todo for project <name>. Nothing to process."
+> "No eligible 'Idea:' issues for project <name> — nothing in Todo and no completed ideas with new feedback."
 
-If there are "Idea:" issues in other statuses (Backlog, In Progress), mention them
+If there are "Idea:" issues in other statuses (Backlog), mention them
 so the user knows what exists.
 
 ## Step 3 — Move to In Progress
@@ -168,10 +188,14 @@ human comments on every iteration:
    subsequent passes.
 
 **Early exit:** If no unprocessed comments are found AND all 3 passes are already
-complete (check the pass counter `<!-- idea-processing: pass 3/3 -->`), report:
+complete (check the pass counter for `pass 3/3`), report:
 > "All passes complete, no new comments. Nothing to do for <ID>."
 
 Then move to the next project in the loop.
+
+**Feedback trigger:** If unprocessed comments ARE found AND all 3 passes are
+already complete, do NOT early-exit. Instead, acknowledge the comments (as above)
+and proceed to **Step 6b — Feedback Pass** to incorporate the new input.
 
 ## Step 5 — Read the full context
 
@@ -337,6 +361,65 @@ On the next loop iteration, Step 4 (resume check) will detect the marker, find
 the reply, incorporate it, and the agent continues the pass from where it left off.
 This question-answer cycle repeats until the agent has no further open questions
 for the current pass — only then does it proceed to the next pass.
+
+## Step 6b — Feedback Pass (post-completion comments)
+
+This step runs when all 3 passes are complete but new unprocessed human comments
+have been found. It allows the idea to evolve based on ongoing feedback without
+resetting the original 3-pass work.
+
+### Tracking
+
+Maintain a feedback counter alongside the pass counter:
+
+```markdown
+<!-- idea-processing: pass 3/3 | feedback N | last-updated: YYYY-MM-DD HH:MM -->
+```
+
+`N` starts at 1 and increments with each feedback pass. If no feedback passes
+have occurred yet, there is no `feedback` field in the marker.
+
+### What to do
+
+1. Re-read the full issue description (all 3 passes) and the new comment(s).
+2. Determine what the feedback changes:
+   - **New information** — update the relevant pass section (research, evaluation,
+     or action plan) with the new data.
+   - **Challenge to a recommendation** — re-evaluate the affected option(s) and
+     update Pass 2 and/or Pass 3 accordingly.
+   - **New requirement or constraint** — update all affected sections.
+   - **Approval or confirmation** — note the confirmation inline and update the
+     action plan if it unblocks a step.
+   - **Question from the user** — answer it in a comment (using the agent
+     signature) and update the description if the answer affects the plan.
+3. Append a summary of what changed at the bottom of the issue description:
+
+```markdown
+## Feedback Pass N — <YYYY-MM-DD>
+
+**Triggered by:** comment from <user> at <timestamp>
+
+### Changes Made
+- <what was updated and why>
+
+### Impact on Recommendation
+<did the recommendation change? if so, what's the new recommendation and why>
+```
+
+4. Update the feedback counter: `<!-- idea-processing: pass 3/3 | feedback N | last-updated: YYYY-MM-DD HH:MM -->`
+5. Post a comment summarizing the update:
+   ```
+   Incorporated your feedback in Feedback Pass N. Updated: <brief list of sections changed>.
+   ---
+   🤖 **Agent** | feedback-pass | <ISO-timestamp>
+   ```
+6. If the feedback raises questions the agent cannot resolve, follow the same
+   question protocol as regular passes (post question, set awaiting-response marker).
+
+After the feedback pass, continue to Step 7 (Final update) only if this is the
+first time reaching completion. If Step 7 was already done in a prior iteration,
+skip directly to Step 8 (status update) with an updated summary, then Step 9
+(report).
 
 ## Step 7 — Final update
 
