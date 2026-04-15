@@ -32,17 +32,67 @@ Todo for each project and process it before moving to the next.
 If neither a URL nor `LINEAR_LOOP` is available, **stop immediately** and ask:
 > "I need a Linear project URL to process ideas from. Example: `https://linear.app/weroad/project/<slug>/issues`"
 
+## Loop Behavior
+
+When this skill runs repeatedly — whether via `/loop`, a scheduled trigger,
+`/ralphloop`, or simply by invoking the skill again — each iteration should:
+
+1. **Ingest new comments:** Fetch all comments on the issue. Find human comments
+   posted after the last agent comment (i.e., not yet acknowledged). Incorporate
+   their content as additional context for the current or next pass.
+2. **Acknowledge incorporated comments:** After reading a human comment, post a
+   brief acknowledgment so it is not re-processed on the next iteration:
+   ```
+   Incorporated your feedback — continuing with pass N.
+   ---
+   🤖 **Agent** | ack | <ISO-timestamp>
+   ```
+3. **Resume from where you left off:** Use the pass counter
+   (`<!-- idea-processing: pass N/3 -->`) to determine which pass to continue or
+   start next.
+4. **Question-answer loop:** If the agent posted a question and received an answer,
+   incorporate the answer and resume. If the answer raises new questions, post
+   follow-ups and wait for the next iteration. This cycle repeats until the agent
+   has no further open questions for the current pass.
+5. **Termination:** The issue is fully processed when all 3 passes are complete
+   AND no `<!-- agent-state: awaiting-response -->` marker exists on the issue.
+   If both conditions are met on a loop iteration, skip to Step 7 (Final update)
+   if it hasn't been done yet, or report "Already complete" and move to the next
+   project.
+
 ## Step 1 — Parse and fetch
 
 Extract the project slug from the URL (segment after `/project/`, before next `/`).
 
-Fetch project details and issues in parallel:
-1. `get_project` with `query: "<slug>"`
-2. `list_issues` with `project: "<slug>"`, `state: "Todo"`, `limit: 100`
+**Important:** The Linear MCP `list_issues` tool does NOT resolve project slugs
+reliably. Always fetch the project first, then use the returned project **name**
+for `list_issues`.
 
-## Step 2 — Find the target issue
+1. `get_project` with `query: "<slug>"` — note the returned `name` and `id`.
+2. `list_issues` with `project: "<project name from step 1>"`, `state: "Todo"`, `limit: 100`
 
-From the returned issues, find the **first** issue whose title starts with `"Idea:"` 
+## Step 2 — List all issues and find the target
+
+First, print a diagnostic table of **all** issues in the project so the user can see
+what exists and which one will be picked:
+
+```
+### <project name> — Issue Overview
+
+| ID | Title | Status | Eligible |
+|----|-------|--------|----------|
+```
+
+For each issue, the `Eligible` column should show:
+- **YES — picked** for the first `Idea:` issue in Todo (oldest by `createdAt`)
+- `Yes — but <other ID> is older` for other `Idea:` issues in Todo
+- `No — not Todo` for `Idea:` issues in other statuses
+- `No — not "Idea:"` for issues whose title doesn't start with `Idea:`
+
+Sort the table by status (Todo first, then In Progress, Backlog, In Review, Done),
+then by `createdAt` ascending within each status.
+
+From the returned issues, find the **first** issue whose title starts with `"Idea:"`
 (case-insensitive). Sort by `createdAt` ascending (oldest first) to process ideas in
 the order they were created.
 
@@ -61,7 +111,67 @@ Use the `save_issue` Linear MCP tool to transition the issue:
 
 Report: `"Moved <ID>: <title> to In Progress"`
 
-## Step 4 — Read the full context
+## Step 4 — Check for pending question (resume check)
+
+Before doing any work on the issue, check its description for the checkpoint marker:
+
+```
+<!-- agent-state: awaiting-response | comment-id:<id> | since:<timestamp> -->
+```
+
+**If the marker exists:**
+
+1. Extract `since` timestamp and `comment-id`.
+2. Fetch all comments using `list_comments` with `issueId: "<ID>"`.
+3. Sort by `createdAt` ascending. Find all comments after the `since` timestamp.
+4. Look for the first comment that does NOT contain `🤖 **Agent**` in its body.
+5. **If a human reply is found:**
+   - Read the reply content — this answers the agent's earlier question.
+   - Remove the `<!-- agent-state: ... -->` marker from the issue description
+     (update via `save_issue`).
+   - Post an acknowledgment comment:
+     ```
+     Received your response — resuming work.
+     ---
+     🤖 **Agent** | status | <ISO-timestamp>
+     ```
+   - Continue to Step 5 with the reply as additional context.
+6. **If no human reply is found:**
+   - Report: "Still waiting for your reply on the Linear comment. Skipping this issue."
+   - Do NOT remove the marker. Move to the next project in the loop.
+
+**If the marker does NOT exist:** Continue to the general comment check below.
+
+See `skills/references/linear-comment-protocol.md` for the full protocol spec.
+
+### General comment ingestion (every loop iteration)
+
+Regardless of whether the agent-state marker exists, check for unprocessed
+human comments on every iteration:
+
+1. Fetch all comments using `list_comments` with `issueId: "<ID>"`.
+2. Sort by `createdAt` ascending.
+3. Find all human comments (those NOT containing `🤖 **Agent**`) that appear
+   AFTER the last agent comment. If no agent comments exist, all human comments
+   since issue creation are candidates.
+4. These are unprocessed feedback comments — incorporate their content as
+   additional context for the current or next pass.
+5. For each incorporated comment, post an acknowledgment:
+   ```
+   Incorporated your feedback — continuing work.
+   ---
+   🤖 **Agent** | ack | <ISO-timestamp>
+   ```
+6. Pass the incorporated feedback as additional context to Step 5 and
+   subsequent passes.
+
+**Early exit:** If no unprocessed comments are found AND all 3 passes are already
+complete (check the pass counter `<!-- idea-processing: pass 3/3 -->`), report:
+> "All passes complete, no new comments. Nothing to do for <ID>."
+
+Then move to the next project in the loop.
+
+## Step 5 — Read the full context
 
 Fetch the complete issue using `get_issue` with the issue identifier.
 
@@ -71,7 +181,7 @@ Also read:
 
 Gather all of this into your working context.
 
-## Step 5 — Three improvement passes
+## Step 6 — Three improvement passes
 
 Perform exactly 3 passes on the idea. After each pass, update the issue description
 using `save_issue`. Each pass builds on the previous one.
@@ -188,7 +298,45 @@ Update the pass counter to `pass 2/3`.
 
 Update the pass counter to `pass 3/3`.
 
-## Step 6 — Final update
+### Between passes — check for new comments
+
+Before starting each subsequent pass (2 and 3), re-fetch comments to check if the
+user has posted feedback since the previous pass completed:
+
+1. Fetch all comments using `list_comments` with `issueId: "<ID>"`.
+2. Find human comments posted after your last agent comment.
+3. If found, incorporate the feedback into the upcoming pass. Post an acknowledgment:
+   ```
+   Incorporated your feedback — continuing with pass N.
+   ---
+   🤖 **Agent** | ack | <ISO-timestamp>
+   ```
+4. If the feedback changes direction or scope, adjust the remaining passes
+   accordingly — the user's input takes priority over prior analysis.
+
+### Pause for questions (any pass)
+
+If during any pass the agent encounters ambiguity that would significantly affect
+the output (e.g., unclear scope, conflicting requirements, missing domain context),
+it SHOULD pause and ask via Linear:
+
+1. Complete whatever partial analysis is possible.
+2. Update the issue description with progress so far (including the pass counter).
+3. Post a comment with the question + agent signature:
+   ```
+   <your questions here>
+   ---
+   🤖 **Agent** | question | <ISO-timestamp>
+   ```
+4. Append the checkpoint marker to the issue description.
+5. Stop and report: "Posted a question on <ID>: <title>. Waiting for your reply in Linear."
+
+On the next loop iteration, Step 4 (resume check) will detect the marker, find
+the reply, incorporate it, and the agent continues the pass from where it left off.
+This question-answer cycle repeats until the agent has no further open questions
+for the current pass — only then does it proceed to the next pass.
+
+## Step 7 — Final update
 
 After all 3 passes, leave the issue in "In Progress" (the user decides when to move
 it to Done or back to Todo).
@@ -198,7 +346,7 @@ Add a comment on the issue summarizing what was done:
 > (Pass 1), evaluation & recommendation (Pass 2), and an action plan (Pass 3).
 > Ready for human review."
 
-## Step 7 — Create a project status update
+## Step 8 — Create a project status update
 
 Use the `save_status_update` Linear MCP tool to publish a project update:
 - `type`: `"project"`
@@ -226,7 +374,7 @@ Refined SIM-3: Automate weekly report generation.
 **Decisions needed:** Confirm budget for GitHub Actions runners.
 ```
 
-## Step 8 — Report
+## Step 9 — Report
 
 Print:
 - Issue ID, title, and URL
