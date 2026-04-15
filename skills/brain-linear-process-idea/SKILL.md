@@ -84,17 +84,19 @@ what exists and which one will be picked:
 ```
 
 For each issue, the `Eligible` column should show:
-- **YES — picked** for the first `Idea:` issue in Todo (oldest by `createdAt`)
-- `Yes — but <other ID> is older` for other `Idea:` issues in Todo
+- **YES — picked** for the highest-priority `Idea:` issue in Todo (ties broken by oldest `createdAt`)
+- `Yes — but <other ID> has higher priority` for other `Idea:` issues in Todo
 - `No — not Todo` for `Idea:` issues in other statuses
 - `No — not "Idea:"` for issues whose title doesn't start with `Idea:`
 
 Sort the table by status (Todo first, then In Progress, Backlog, In Review, Done),
-then by `createdAt` ascending within each status.
+then by priority descending (Urgent > High > Medium > Low > None), then by
+`createdAt` ascending within the same priority.
 
 From the returned issues, find the **first** issue whose title starts with `"Idea:"`
-(case-insensitive). Sort by `createdAt` ascending (oldest first) to process ideas in
-the order they were created.
+(case-insensitive). Sort by **priority descending** first (Urgent → High → Medium →
+Low → None/unset), then by `createdAt` ascending (oldest first) to break ties within
+the same priority level.
 
 **If no "Idea:" issue is found in Todo:**
 Stop and report:

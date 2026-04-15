@@ -94,17 +94,19 @@ can see what exists and which one will be picked:
 ```
 
 For each issue, the `Eligible` column should show:
-- **YES — picked** for the first `Task:` issue in In Progress or In Review (oldest by `createdAt`)
-- `Yes — but <other ID> is older` for other `Task:` issues in In Progress or In Review
+- **YES — picked** for the highest-priority `Task:` issue in In Progress or In Review (ties broken by oldest `createdAt`)
+- `Yes — but <other ID> has higher priority` for other `Task:` issues in In Progress or In Review
 - `No — not In Progress or In Review` for `Task:` issues in other statuses
 - `No — not "Task:"` for issues whose title doesn't start with `Task:`
 
 Sort the table by status (In Progress first, then In Review, then Todo, Backlog, Done),
-then by `createdAt` ascending within each status.
+then by priority descending (Urgent > High > Medium > Low > None), then by
+`createdAt` ascending within the same priority.
 
 From the returned issues, find the **first** issue whose title starts with `"Task:"`
-(case-insensitive), sorted by `createdAt` ascending (oldest first, or by priority
-if available).
+(case-insensitive). Sort by **priority descending** first (Urgent → High → Medium →
+Low → None/unset), then by `createdAt` ascending (oldest first) to break ties within
+the same priority level.
 
 Skip issues whose title does NOT start with `"Task:"` — those are ideas or
 other issue types handled by different skills.
