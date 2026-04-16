@@ -28,6 +28,26 @@ from markitdown import MarkItDown
 from rewrite_links import build_link_map, rewrite_links
 
 
+def _check_markitdown_extras() -> None:
+    """markitdown 0.1.x split converters into [all] extras — a bare install
+    imports cleanly but every docx/pdf/xlsx/pptx conversion fails at runtime
+    with MissingDependencyException. Surface that loudly at startup."""
+    missing = []
+    for mod, fmt in (("mammoth", "docx"), ("pdfminer", "pdf"),
+                     ("openpyxl", "xlsx"), ("pptx", "pptx")):
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(fmt)
+    if missing:
+        print(
+            f"WARNING: markitdown is missing converters for: {', '.join(missing)}. "
+            f"Office files will be saved as-is (no .md sibling). "
+            f"Fix: uv tool install --force 'markitdown[all]'",
+            file=sys.stderr,
+        )
+
+
 # -- Project root -------------------------------------------------------------
 
 PROJECT_ROOT = subprocess.run(
@@ -391,6 +411,8 @@ def process_file(file_info: dict, output_dir: str,
                 return True, "exported"
             except Exception as e:
                 # markitdown failed — keep the Office file as fallback
+                print(f"  WARN: markitdown failed for {os.path.basename(office_path)}: "
+                      f"{str(e).splitlines()[0][:160]}", file=sys.stderr)
                 file_info["_file_path"] = office_path
                 file_info["_exported"] = True
                 return True, f"exported_no_md({ext})"
@@ -426,8 +448,9 @@ def process_file(file_info: dict, output_dir: str,
                 file_info["_file_path"] = md_path
                 file_info["_exported"] = True
                 return True, "downloaded"
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"  WARN: markitdown failed for {os.path.basename(output_path)}: "
+                      f"{str(e).splitlines()[0][:160]}", file=sys.stderr)
         file_info["_file_path"] = output_path
         file_info["_exported"] = True
         return True, "downloaded"
@@ -437,6 +460,7 @@ def process_file(file_info: dict, output_dir: str,
 # -- Main ---------------------------------------------------------------------
 
 def main():
+    _check_markitdown_extras()
     parser = argparse.ArgumentParser(
         description="Export a Google Drive folder to src/gdrive/ as Markdown files (uses gws for auth)."
     )
